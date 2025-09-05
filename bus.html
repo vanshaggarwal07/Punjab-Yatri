@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Ticket Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a2e46;
+            color: #1f2937;
+        }
+
+        .gradient-button {
+            background-image: linear-gradient(to right, #22c55e, #16a34a);
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .gradient-button:hover {
+            transform: scale(1.05);
+            background-image: linear-gradient(to right, #16a34a, #22c55e);
+        }
+
+        .details-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+
+        .details-container.open {
+            max-height: 500px; /* Adjust based on content height */
+        }
+
+        .seat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            place-items: center;
+        }
+
+        .seat {
+            width: 40px;
+            height: 40px;
+            background-color: #d1d5db;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4b5563;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .seat.available {
+            background-color: #e5e7eb;
+            cursor: pointer;
+        }
+        
+        .seat.available:hover {
+            background-color: #d1d5db;
+        }
+
+        .seat.selected {
+            background-color: #2563eb;
+            color: white;
+            border: 2px solid #1d4ed8;
+        }
+
+        .seat.booked {
+            background-color: #ef4444;
+            color: white;
+            cursor: not-allowed;
+        }
+        
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #d1d5db;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 5px;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: #2563eb;
+            border: 3px solid white;
+            z-index: 1;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="max-w-4xl w-full bg-white rounded-xl shadow-2xl p-6 md:p-8">
+
+        <!-- Search Bar Section -->
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-6 text-gray-800">Find Your Bus</h1>
+
+        <div class="bg-white rounded-xl p-4 md:p-6 mb-8 shadow-inner">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <!-- Source Input -->
+                <div class="col-span-1 md:col-span-1">
+                    <label for="source" class="block text-sm font-medium text-gray-700 mb-1">Source</label>
+                    <input type="text" id="source" placeholder="e.g. Ludhiana" class="w-full rounded-md border-2 border-gray-300 p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">
+                </div>
+                <!-- Destination Input -->
+                <div class="col-span-1 md:col-span-1">
+                    <label for="destination" class="block text-sm font-medium text-gray-700 mb-1">Destination</label>
+                    <input type="text" id="destination" placeholder="e.g. Amritsar" class="w-full rounded-md border-2 border-gray-300 p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">
+                </div>
+                <!-- Date Input -->
+                <div class="col-span-1 md:col-span-1">
+                    <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Travel Date</label>
+                    <input type="date" id="date" class="w-full rounded-md border-2 border-gray-300 p-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300">
+                </div>
+                <!-- Search Button -->
+                <div class="col-span-1 md:col-span-1">
+                    <button id="searchBtn" class="w-full rounded-md bg-blue-600 text-white font-semibold py-2.5 px-4 hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+                        Search Buses
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bus List Section -->
+        <div id="resultsContainer" class="hidden">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-semibold text-gray-800">Available Buses</h2>
+                <div class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-600">Sort by:</span>
+                    <select id="sortSelect" class="rounded-md border-2 border-gray-300 p-2 text-sm focus:ring-2 focus:ring-blue-500">
+                        <option value="departure_asc">Departure (Early to Late)</option>
+                        <option value="departure_desc">Departure (Late to Early)</option>
+                    </select>
+                </div>
+            </div>
+            <div id="busList" class="space-y-6">
+                <!-- Bus cards will be dynamically inserted here -->
+            </div>
+            <p id="noResults" class="hidden text-center text-gray-500 mt-8">No buses found for this route.</p>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="hidden flex justify-center items-center h-48">
+            <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        </div>
+
+    </div>
+    
+    <!-- AI Floating Button -->
+    <button class="fixed bottom-6 right-6 p-4 bg-orange-500 text-white font-semibold rounded-full shadow-lg hover:bg-orange-600 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-orange-500 focus:ring-opacity-50">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+    </button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchBtn = document.getElementById('searchBtn');
+            const sourceInput = document.getElementById('source');
+            const destinationInput = document.getElementById('destination');
+            const busListContainer = document.getElementById('busList');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const noResultsMessage = document.getElementById('noResults');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const sortSelect = document.getElementById('sortSelect');
+            
+            let currentBuses = [];
+            let busCardCounter = 0;
+
+            // Hardcoded mock data for demonstration, personalized for Punjab
+            const busData = [
+                {
+                    source: "Ludhiana",
+                    destination: "Amritsar",
+                    operator: "Punjab Roadways",
+                    departureTime: "08:00 AM",
+                    arrivalTime: "12:00 PM",
+                    duration: "4h",
+                    rating: "4.4",
+                    seatingTypes: [
+                        { name: "Seater", seats: 12 },
+                        { name: "Sleeper", seats: 12 },
+                        { name: "Private Sleeper", seats: 12 }
+                    ],
+                    amenities: ["AC", "Water Bottle", "Blanket"],
+                    boardingPoint: "ISBT Ludhiana Gate 1",
+                    droppingPoint: "Amritsar Bus Stand",
+                    liveStatus: "On Time",
+                    currentLocation: "Jalandhar Bypass",
+                    stops: [
+                        { time: "08:00 AM", location: "ISBT Ludhiana Gate 1", desc: "Boarding Point" },
+                        { time: "09:00 AM", location: "Jalandhar Bypass", desc: "Bus Stop" },
+                        { time: "10:30 AM", location: "Kartarpur", desc: "City Center" },
+                        { time: "12:00 PM", location: "Amritsar Bus Stand", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Ludhiana",
+                    destination: "Amritsar",
+                    operator: "New Star Travels",
+                    departureTime: "09:30 AM",
+                    arrivalTime: "01:30 PM",
+                    duration: "4h",
+                    rating: "4.6",
+                    seatingTypes: [
+                        { name: "AC Seater", seats: 20 },
+                        { name: "AC Sleeper", seats: 10 },
+                        { name: "Private Sleeper", seats: 5 }
+                    ],
+                    amenities: ["AC", "WiFi", "Water Bottle"],
+                    boardingPoint: "Bharat Nagar Chowk",
+                    droppingPoint: "Golden Temple, Amritsar",
+                    liveStatus: "Delayed by 15 mins",
+                    currentLocation: "Ludhiana Bypass",
+                    stops: [
+                        { time: "09:30 AM", location: "Bharat Nagar Chowk", desc: "Boarding Point" },
+                        { time: "11:00 AM", location: "Jalandhar Bybass", desc: "Bus Stop" },
+                        { time: "12:30 PM", location: "Town Hall, Amritsar", desc: "City Center" },
+                        { time: "01:30 PM", location: "Golden Temple, Amritsar", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Ludhiana",
+                    destination: "Amritsar",
+                    operator: "Royal Transport",
+                    departureTime: "06:00 PM",
+                    arrivalTime: "10:00 PM",
+                    duration: "4h",
+                    rating: "4.1",
+                    seatingTypes: [
+                        { name: "Seater", seats: 25 },
+                        { name: "Sleeper", seats: 15 }
+                    ],
+                    amenities: ["AC", "Charging Point"],
+                    boardingPoint: "Ferozepur Road",
+                    droppingPoint: "Hall Gate, Amritsar",
+                    liveStatus: "On Time",
+                    currentLocation: "Jalandhar Bus Stand",
+                    stops: [
+                        { time: "06:00 PM", location: "Ferozepur Road", desc: "Boarding Point" },
+                        { time: "07:30 PM", location: "Jalandhar Bus Stand", desc: "Bus Stop" },
+                        { time: "09:00 PM", location: "Model Town, Amritsar", desc: "City Center" },
+                        { time: "10:00 PM", location: "Hall Gate, Amritsar", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Ludhiana",
+                    destination: "Jalandhar",
+                    operator: "Orbit Bus",
+                    departureTime: "10:30 AM",
+                    arrivalTime: "12:30 PM",
+                    duration: "2h",
+                    rating: "4.2",
+                    seatingTypes: [
+                        { name: "Seater", seats: 25 },
+                        { name: "Sleeper", seats: 15 }
+                    ],
+                    amenities: ["AC", "Charging Point"],
+                    boardingPoint: "ISBT Ludhiana",
+                    droppingPoint: "Jalandhar City Bus Stand",
+                    liveStatus: "On Time",
+                    currentLocation: "Phagwara Bypass",
+                    stops: [
+                        { time: "10:30 AM", location: "ISBT Ludhiana", desc: "Boarding Point" },
+                        { time: "11:30 AM", location: "Phagwara Bypass", desc: "Bus Stop" },
+                        { time: "12:30 PM", location: "Jalandhar City Bus Stand", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Ludhiana",
+                    destination: "Jalandhar",
+                    operator: "Golden Lines",
+                    departureTime: "02:00 PM",
+                    arrivalTime: "04:00 PM",
+                    duration: "2h",
+                    rating: "4.5",
+                    seatingTypes: [
+                        { name: "Non-AC Seater", seats: 30 },
+                        { name: "Private Sleeper", seats: 8 }
+                    ],
+                    amenities: ["Water Bottle"],
+                    boardingPoint: "Model Town Ext.",
+                    droppingPoint: "Jalandhar Bypass",
+                    liveStatus: "Arrived at destination",
+                    currentLocation: "Jalandhar Bypass",
+                    stops: [
+                        { time: "02:00 PM", location: "Model Town Ext.", desc: "Boarding Point" },
+                        { time: "03:00 PM", location: "Phillaur", desc: "Bus Stop" },
+                        { time: "04:00 PM", location: "Jalandhar Bypass", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Amritsar",
+                    destination: "Chandigarh",
+                    operator: "CTU",
+                    departureTime: "09:00 AM",
+                    arrivalTime: "02:00 PM",
+                    duration: "5h",
+                    rating: "4.0",
+                    seatingTypes: [
+                        { name: "Seater", seats: 8 },
+                        { name: "Sleeper", seats: 10 }
+                    ],
+                    amenities: ["Water Bottle"],
+                    boardingPoint: "Amritsar Bus Stand",
+                    droppingPoint: "ISBT Chandigarh",
+                    liveStatus: "On Time",
+                    currentLocation: "Ludhiana Bus Stand",
+                    stops: [
+                        { time: "09:00 AM", location: "Amritsar Bus Stand", desc: "Boarding Point" },
+                        { time: "10:30 AM", location: "Jalandhar Bypass", desc: "Bus Stop" },
+                        { time: "12:00 PM", location: "Ludhiana Bus Stand", desc: "Bus Stop" },
+                        { time: "01:30 PM", location: "Kharar Bypass", desc: "Bus Stop" },
+                        { time: "02:00 PM", location: "ISBT Chandigarh", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Amritsar",
+                    destination: "Chandigarh",
+                    operator: "Maharaja Travels",
+                    departureTime: "11:30 AM",
+                    arrivalTime: "04:30 PM",
+                    duration: "5h",
+                    rating: "4.3",
+                    seatingTypes: [
+                        { name: "AC Seater", seats: 15 },
+                        { name: "AC Sleeper", seats: 10 },
+                        { name: "Private Sleeper", seats: 10 }
+                    ],
+                    amenities: ["AC", "Blanket"],
+                    boardingPoint: "Amritsar Bus Stand",
+                    droppingPoint: "Sector 17, Chandigarh",
+                    liveStatus: "Delayed by 30 mins",
+                    currentLocation: "Jalandhar City Center",
+                    stops: [
+                        { time: "11:30 AM", location: "Amritsar Bus Stand", desc: "Boarding Point" },
+                        { time: "01:00 PM", location: "Jalandhar City Center", desc: "Bus Stop" },
+                        { time: "03:00 PM", location: "Mohali Bypass", desc: "Bus Stop" },
+                        { time: "04:30 PM", location: "Sector 17, Chandigarh", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Jalandhar",
+                    destination: "Chandigarh",
+                    operator: "Raj Travels",
+                    departureTime: "06:00 AM",
+                    arrivalTime: "10:00 AM",
+                    duration: "4h",
+                    rating: "4.5",
+                    seatingTypes: [
+                        { name: "AC Sleeper", seats: 5 }
+                    ],
+                    amenities: ["AC", "Blanket", "Water Bottle"],
+                    boardingPoint: "Jalandhar Bus Stand",
+                    droppingPoint: "Sector 17, Chandigarh",
+                    liveStatus: "On Time",
+                    currentLocation: "Ludhiana Bypass",
+                    stops: [
+                        { time: "06:00 AM", location: "Jalandhar Bus Stand", desc: "Boarding Point" },
+                        { time: "07:30 AM", location: "Ludhiana Bypass", desc: "Bus Stop" },
+                        { time: "08:45 AM", location: "Kharar Bus Stand", desc: "Bus Stop" },
+                        { time: "10:00 AM", location: "Sector 17, Chandigarh", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Ludhiana",
+                    destination: "Delhi",
+                    operator: "Zingbus",
+                    departureTime: "11:00 PM",
+                    arrivalTime: "06:00 AM",
+                    duration: "7h",
+                    rating: "4.7",
+                    seatingTypes: [
+                        { name: "AC Sleeper", seats: 18 },
+                        { name: "AC Seater", seats: 20 }
+                    ],
+                    amenities: ["AC", "WiFi", "Blanket", "Water Bottle"],
+                    boardingPoint: "Ludhiana Bypass",
+                    droppingPoint: "Delhi ISBT Kashmere Gate",
+                    liveStatus: "On Time",
+                    currentLocation: "Ambala Cantt",
+                    stops: [
+                        { time: "11:00 PM", location: "Ludhiana Bypass", desc: "Boarding Point" },
+                        { time: "02:00 AM", location: "Ambala Cantt", desc: "Bus Stop" },
+                        { time: "04:00 AM", location: "Karnal Bypass", desc: "Bus Stop" },
+                        { time: "06:00 AM", location: "Delhi ISBT Kashmere Gate", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Ludhiana",
+                    destination: "Delhi",
+                    operator: "New Punjab Travels",
+                    departureTime: "09:00 PM",
+                    arrivalTime: "05:00 AM",
+                    duration: "8h",
+                    rating: "4.0",
+                    seatingTypes: [
+                        { name: "Seater", seats: 25 },
+                        { name: "Sleeper", seats: 18 }
+                    ],
+                    amenities: ["AC", "Water Bottle"],
+                    boardingPoint: "Ludhiana Bus Stand",
+                    droppingPoint: "Gurgaon Bus Stand",
+                    liveStatus: "On Time",
+                    currentLocation: "Panipat Bus Stop",
+                    stops: [
+                        { time: "09:00 PM", location: "Ludhiana Bus Stand", desc: "Boarding Point" },
+                        { time: "11:30 PM", location: "Panipat Bus Stop", desc: "Bus Stop" },
+                        { time: "03:00 AM", location: "Dhaula Kuan", desc: "Bus Stop" },
+                        { time: "05:00 AM", location: "Gurgaon Bus Stand", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Amritsar",
+                    destination: "Jalandhar",
+                    operator: "CTU",
+                    departureTime: "07:00 AM",
+                    arrivalTime: "08:30 AM",
+                    duration: "1h 30m",
+                    rating: "4.1",
+                    seatingTypes: [
+                        { name: "Non-AC Seater", seats: 30 }
+                    ],
+                    amenities: ["Charging Point"],
+                    boardingPoint: "Amritsar City Bus Stand",
+                    droppingPoint: "Jalandhar Bus Stand",
+                    liveStatus: "Arrived at destination",
+                    currentLocation: "Jalandhar Bus Stand",
+                    stops: [
+                        { time: "07:00 AM", location: "Amritsar City Bus Stand", desc: "Boarding Point" },
+                        { time: "08:00 AM", location: "Rayya Bypass", desc: "Bus Stop" },
+                        { time: "08:30 AM", location: "Jalandhar Bus Stand", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Amritsar",
+                    destination: "Jalandhar",
+                    operator: "Sukhmani Transport",
+                    departureTime: "03:00 PM",
+                    arrivalTime: "04:30 PM",
+                    duration: "1h 30m",
+                    rating: "4.5",
+                    seatingTypes: [
+                        { name: "AC Seater", seats: 25 },
+                        { name: "Private Sleeper", seats: 5 }
+                    ],
+                    amenities: ["AC", "WiFi"],
+                    boardingPoint: "Amritsar Bypass",
+                    droppingPoint: "Ludhiana Bypass",
+                    liveStatus: "On Time",
+                    currentLocation: "Kapurthala Chowk",
+                    stops: [
+                        { time: "03:00 PM", location: "Amritsar Bypass", desc: "Boarding Point" },
+                        { time: "03:45 PM", location: "Kapurthala Chowk", desc: "Bus Stop" },
+                        { time: "04:30 PM", location: "Ludhiana Bypass", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Chandigarh",
+                    destination: "Patiala",
+                    operator: "Royal Travels",
+                    departureTime: "10:00 AM",
+                    arrivalTime: "12:00 PM",
+                    duration: "2h",
+                    rating: "4.3",
+                    seatingTypes: [
+                        { name: "AC Seater", seats: 10 }
+                    ],
+                    amenities: ["AC"],
+                    boardingPoint: "ISBT Sector 43, Chandigarh",
+                    droppingPoint: "Patiala Bus Stand",
+                    liveStatus: "Delayed by 10 mins",
+                    currentLocation: "Zirakpur",
+                    stops: [
+                        { time: "10:00 AM", location: "ISBT Sector 43, Chandigarh", desc: "Boarding Point" },
+                        { time: "11:00 AM", location: "Zirakpur", desc: "Bus Stop" },
+                        { time: "12:00 PM", location: "Patiala Bus Stand", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Jalandhar",
+                    destination: "Delhi",
+                    operator: "Yolo Bus",
+                    departureTime: "09:30 PM",
+                    arrivalTime: "05:00 AM",
+                    duration: "7h 30m",
+                    rating: "4.6",
+                    seatingTypes: [
+                        { name: "AC Sleeper", seats: 22 }
+                    ],
+                    amenities: ["AC", "WiFi", "Blanket"],
+                    boardingPoint: "Jalandhar Bypass",
+                    droppingPoint: "Anand Vihar, Delhi",
+                    liveStatus: "On Time",
+                    currentLocation: "Ludhiana Bypass",
+                    stops: [
+                        { time: "09:30 PM", location: "Jalandhar Bypass", desc: "Boarding Point" },
+                        { time: "11:00 PM", location: "Ludhiana Bypass", desc: "Bus Stop" },
+                        { time: "02:00 AM", location: "Karnal", desc: "Bus Stop" },
+                        { time: "05:00 AM", location: "Anand Vihar, Delhi", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Patiala",
+                    destination: "Ludhiana",
+                    operator: "Himachal Roadways",
+                    departureTime: "02:00 PM",
+                    arrivalTime: "04:00 PM",
+                    duration: "2h",
+                    rating: "3.9",
+                    seatingTypes: [
+                        { name: "Non-AC Seater", seats: 15 }
+                    ],
+                    amenities: ["Water Bottle"],
+                    boardingPoint: "Patiala Bus Stand",
+                    droppingPoint: "ISBT Ludhiana",
+                    liveStatus: "On Time",
+                    currentLocation: "Samana",
+                    stops: [
+                        { time: "02:00 PM", location: "Patiala Bus Stand", desc: "Boarding Point" },
+                        { time: "03:00 PM", location: "Samana", desc: "Bus Stop" },
+                        { time: "04:00 PM", location: "ISBT Ludhiana", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Amritsar",
+                    destination: "Srinagar",
+                    operator: "JKRTC",
+                    departureTime: "05:00 AM",
+                    arrivalTime: "08:00 PM",
+                    duration: "15h",
+                    rating: "4.8",
+                    seatingTypes: [
+                        { name: "AC Sleeper", seats: 9 }
+                    ],
+                    amenities: ["AC", "Water Bottle", "Snacks"],
+                    boardingPoint: "Amritsar City Bus Stand",
+                    droppingPoint: "Srinagar Bus Stand",
+                    liveStatus: "On Time",
+                    currentLocation: "Pathankot",
+                    stops: [
+                        { time: "05:00 AM", location: "Amritsar City Bus Stand", desc: "Boarding Point" },
+                        { time: "07:00 AM", location: "Pathankot", desc: "Bus Stop" },
+                        { time: "01:00 PM", location: "Jammu Tawi", desc: "Bus Stop" },
+                        { time: "08:00 PM", location: "Srinagar Bus Stand", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Chandigarh",
+                    destination: "Delhi",
+                    operator: "IntrCity SmartBus",
+                    departureTime: "11:00 PM",
+                    arrivalTime: "07:00 AM",
+                    duration: "8h",
+                    rating: "4.9",
+                    seatingTypes: [
+                        { name: "Sleeper", seats: 20 },
+                        { name: "Private Sleeper", seats: 10 }
+                    ],
+                    amenities: ["AC", "WiFi", "Blanket", "Water Bottle"],
+                    boardingPoint: "ISBT Sector 43, Chandigarh",
+                    droppingPoint: "ISBT Kashmere Gate, Delhi",
+                    liveStatus: "On Time",
+                    currentLocation: "Ambala Cantt",
+                    stops: [
+                        { time: "11:00 PM", location: "ISBT Sector 43, Chandigarh", desc: "Boarding Point" },
+                        { time: "12:30 AM", location: "Ambala Cantt", desc: "Bus Stop" },
+                        { time: "02:00 AM", location: "Karnal Bypass", desc: "Bus Stop" },
+                        { time: "04:00 AM", location: "Sonipat", desc: "Bus Stop" },
+                        { time: "07:00 AM", location: "ISBT Kashmere Gate, Delhi", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Amritsar",
+                    destination: "Jaipur",
+                    operator: "Maharaja Travels",
+                    departureTime: "09:00 PM",
+                    arrivalTime: "09:30 AM",
+                    duration: "12h 30m",
+                    rating: "4.3",
+                    seatingTypes: [
+                        { name: "AC Sleeper", seats: 15 }
+                    ],
+                    amenities: ["AC", "Blanket", "Entertainment System"],
+                    boardingPoint: "Amritsar City Bus Stand",
+                    droppingPoint: "Jaipur Bus Stand",
+                    liveStatus: "On Time",
+                    currentLocation: "Bathinda",
+                    stops: [
+                        { time: "09:00 PM", location: "Amritsar City Bus Stand", desc: "Boarding Point" },
+                        { time: "11:00 PM", location: "Bathinda", desc: "Bus Stop" },
+                        { time: "02:00 AM", location: "Ganganagar", desc: "Bus Stop" },
+                        { time: "05:00 AM", location: "Hanumangarh", desc: "Bus Stop" },
+                        { time: "09:30 AM", location: "Jaipur Bus Stand", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Ludhiana",
+                    destination: "Gurgaon",
+                    operator: "New Punjab Travels",
+                    departureTime: "10:00 PM",
+                    arrivalTime: "05:00 AM",
+                    duration: "7h",
+                    rating: "4.0",
+                    seatingTypes: [
+                        { name: "Seater", seats: 25 },
+                        { name: "Sleeper", seats: 18 },
+                        { name: "Private Sleeper", seats: 8 }
+                    ],
+                    amenities: ["AC", "Water Bottle"],
+                    boardingPoint: "Ludhiana Bus Stand",
+                    droppingPoint: "Gurgaon Bus Stand",
+                    liveStatus: "On Time",
+                    currentLocation: "Panipat Bypass",
+                    stops: [
+                        { time: "10:00 PM", location: "Ludhiana Bus Stand", desc: "Boarding Point" },
+                        { time: "01:00 AM", location: "Panipat Bypass", desc: "Bus Stop" },
+                        { time: "03:00 AM", location: "Delhi ISBT", desc: "Bus Stop" },
+                        { time: "05:00 AM", location: "Gurgaon Bus Stand", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Jalandhar",
+                    destination: "Shimla",
+                    operator: "Himachal Tours",
+                    departureTime: "05:00 AM",
+                    arrivalTime: "11:00 AM",
+                    duration: "6h",
+                    rating: "4.6",
+                    seatingTypes: [
+                        { name: "Non-AC Seater", seats: 35 }
+                    ],
+                    amenities: ["Charging Point"],
+                    boardingPoint: "Jalandhar Bus Stand",
+                    droppingPoint: "Shimla Bus Stand",
+                    liveStatus: "On Time",
+                    currentLocation: "Ropar Bus Stand",
+                    stops: [
+                        { time: "05:00 AM", location: "Jalandhar Bus Stand", desc: "Boarding Point" },
+                        { time: "07:00 AM", location: "Ropar Bus Stand", desc: "Bus Stop" },
+                        { time: "09:00 AM", location: "Solan", desc: "Bus Stop" },
+                        { time: "11:00 AM", location: "Shimla Bus Stand", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Patiala",
+                    destination: "Delhi",
+                    operator: "Patiala Express",
+                    departureTime: "07:30 PM",
+                    arrivalTime: "02:00 AM",
+                    duration: "6h 30m",
+                    rating: "4.1",
+                    seatingTypes: [
+                        { name: "AC Seater", seats: 20 }
+                    ],
+                    amenities: ["AC", "Water Bottle"],
+                    boardingPoint: "Patiala City Bus Stand",
+                    droppingPoint: "Delhi ISBT Kashmere Gate",
+                    liveStatus: "On Time",
+                    currentLocation: "Ambala City",
+                    stops: [
+                        { time: "07:30 PM", location: "Patiala City Bus Stand", desc: "Boarding Point" },
+                        { time: "09:00 PM", location: "Ambala City", desc: "Bus Stop" },
+                        { time: "11:00 PM", location: "Karnal Bypass", desc: "Bus Stop" },
+                        { time: "02:00 AM", location: "Delhi ISBT Kashmere Gate", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Amritsar",
+                    destination: "Mumbai",
+                    operator: "VRL Travels",
+                    departureTime: "06:00 PM",
+                    arrivalTime: "08:00 PM",
+                    duration: "26h",
+                    rating: "4.2",
+                    seatingTypes: [
+                        { name: "AC Sleeper", seats: 10 },
+                        { name: "Non-AC Sleeper", seats: 8 }
+                    ],
+                    amenities: ["AC", "Blanket", "Pillow"],
+                    boardingPoint: "Amritsar Airport",
+                    droppingPoint: "Borivali, Mumbai",
+                    liveStatus: "On Time",
+                    currentLocation: "Jalandhar Bypass",
+                    stops: [
+                        { time: "06:00 PM", location: "Amritsar Airport", desc: "Boarding Point" },
+                        { time: "11:00 PM", location: "Jalandhar Bypass", desc: "Bus Stop" },
+                        { time: "05:00 AM", location: "Jaipur", desc: "Bus Stop" },
+                        { time: "01:00 PM", location: "Vadodara", desc: "Bus Stop" },
+                        { time: "08:00 PM", location: "Borivali, Mumbai", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Ludhiana",
+                    destination: "Chandigarh",
+                    operator: "GoBus",
+                    departureTime: "09:00 AM",
+                    arrivalTime: "11:30 AM",
+                    duration: "2h 30m",
+                    rating: "4.5",
+                    seatingTypes: [
+                        { name: "AC Seater", seats: 30 }
+                    ],
+                    amenities: ["AC", "Charging Point"],
+                    boardingPoint: "Ludhiana Bus Stand",
+                    droppingPoint: "ISBT Sector 43, Chandigarh",
+                    liveStatus: "On Time",
+                    currentLocation: "Mohali Bypass",
+                    stops: [
+                        { time: "09:00 AM", location: "Ludhiana Bus Stand", desc: "Boarding Point" },
+                        { time: "10:30 AM", location: "Mohali Bypass", desc: "Bus Stop" },
+                        { time: "11:30 AM", location: "ISBT Sector 43, Chandigarh", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Delhi",
+                    destination: "Ludhiana",
+                    operator: "Zingbus",
+                    departureTime: "09:30 PM",
+                    arrivalTime: "05:00 AM",
+                    duration: "7h 30m",
+                    rating: "4.7",
+                    seatingTypes: [
+                        { name: "AC Sleeper", seats: 15 },
+                        { name: "AC Seater", seats: 10 }
+                    ],
+                    amenities: ["AC", "WiFi", "Blanket"],
+                    boardingPoint: "Delhi ISBT Kashmere Gate",
+                    droppingPoint: "Ludhiana Bus Stand",
+                    liveStatus: "On Time",
+                    currentLocation: "Ambala Cantt",
+                    stops: [
+                        { time: "09:30 PM", location: "Delhi ISBT Kashmere Gate", desc: "Boarding Point" },
+                        { time: "11:30 PM", location: "Karnal", desc: "Bus Stop" },
+                        { time: "02:00 AM", location: "Ambala Cantt", desc: "Bus Stop" },
+                        { time: "05:00 AM", location: "Ludhiana Bus Stand", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Jalandhar",
+                    destination: "Amritsar",
+                    operator: "CTU",
+                    departureTime: "04:00 PM",
+                    arrivalTime: "05:30 PM",
+                    duration: "1h 30m",
+                    rating: "4.1",
+                    seatingTypes: [
+                        { name: "Non-AC Seater", seats: 40 }
+                    ],
+                    amenities: ["Water Bottle"],
+                    boardingPoint: "Jalandhar Bus Stand",
+                    droppingPoint: "Amritsar Bus Stand",
+                    liveStatus: "On Time",
+                    currentLocation: "Rayya Bypass",
+                    stops: [
+                        { time: "04:00 PM", location: "Jalandhar Bus Stand", desc: "Boarding Point" },
+                        { time: "05:00 PM", location: "Rayya Bypass", desc: "Bus Stop" },
+                        { time: "05:30 PM", location: "Amritsar Bus Stand", desc: "Dropping Point" }
+                    ]
+                },
+                {
+                    source: "Chandigarh",
+                    destination: "Amritsar",
+                    operator: "Raj Travels",
+                    departureTime: "08:00 PM",
+                    arrivalTime: "01:00 AM",
+                    duration: "5h",
+                    rating: "4.5",
+                    seatingTypes: [
+                        { name: "AC Sleeper", seats: 8 }
+                    ],
+                    amenities: ["AC", "Pillow"],
+                    boardingPoint: "Sector 17, Chandigarh",
+                    droppingPoint: "Amritsar Bus Stand",
+                    liveStatus: "On Time",
+                    currentLocation: "Ludhiana Bus Stand",
+                    stops: [
+                        { time: "08:00 PM", location: "Sector 17, Chandigarh", desc: "Boarding Point" },
+                        { time: "09:00 PM", location: "Kharar Bypass", desc: "Bus Stop" },
+                        { time: "10:30 PM", location: "Ludhiana Bus Stand", desc: "Bus Stop" },
+                        { time: "12:00 AM", location: "Jalandhar Bypass", desc: "Bus Stop" },
+                        { time: "01:00 AM", location: "Amritsar Bus Stand", desc: "Dropping Point" }
+                    ]
+                }
+            ];
+
+            const renderBusCards = (buses) => {
+                busListContainer.innerHTML = '';
+                if (buses.length === 0) {
+                    noResultsMessage.classList.remove('hidden');
+                    return;
+                }
+                noResultsMessage.classList.add('hidden');
+
+                buses.forEach((bus, index) => {
+                    let statusColor = '';
+                    if (bus.liveStatus === "On Time") {
+                        statusColor = 'bg-green-500';
+                    } else if (bus.liveStatus.includes("Delayed")) {
+                        statusColor = 'bg-orange-500';
+                    } else if (bus.liveStatus.includes("Arrived")) {
+                        statusColor = 'bg-blue-500';
+                    }
+
+                    const detailsId = `details-${index}`;
+                    const busCard = document.createElement('div');
+                    busCard.className = 'bg-white rounded-lg shadow-lg p-6 space-y-4 border border-gray-200';
+                    busCard.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-blue-600 font-bold text-xl">${bus.operator.charAt(0)}</span>
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-md text-gray-800">${bus.operator}</span>
+                                    <div class="flex items-center space-x-1 mt-1">
+                                        <div class="bg-green-500 text-white text-xs font-bold rounded px-1 py-0.5">${bus.rating}</div>
+                                        <span class="text-sm text-gray-500">
+                                            ${bus.seatingTypes.map(s => s.name).join(', ')}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end">
+                                <span class="text-lg font-bold">${bus.departureTime}</span>
+                                <span class="text-sm text-gray-500">Departs</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-sm text-gray-500">${bus.duration} Journey</span>
+                            </div>
+                            <div>
+                                <span class="text-lg font-bold">${bus.arrivalTime}</span>
+                                <span class="text-sm text-gray-500">Arrives</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-around items-center border-t border-b py-4">
+                            <div class="flex flex-col items-center">
+                                <span class="text-sm font-semibold text-gray-800">Live Status</span>
+                                <span class="text-sm text-white font-bold px-2 py-1 rounded-full mt-1 ${statusColor}">${bus.liveStatus}</span>
+                                <span class="text-sm text-gray-500 mt-1">Currently at: ${bus.currentLocation}</span>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4 pt-4 border-t border-gray-200">
+                            <button class="text-blue-600 hover:text-blue-800 font-semibold text-sm transition-colors duration-200" data-toggle-details="${detailsId}">
+                                View Details
+                            </button>
+                        </div>
+
+                        <div id="${detailsId}" class="details-container">
+                            <div class="p-4 bg-gray-50 rounded-lg mt-4 space-y-4">
+                                <div class="timeline">
+                                    ${bus.stops.map(stop => `
+                                        <div class="timeline-item">
+                                            <div class="flex items-start space-x-4">
+                                                <div class="flex-shrink-0 pt-1">
+                                                    <div class="text-sm font-bold text-gray-800">${stop.time}</div>
+                                                </div>
+                                                <div class="flex-grow">
+                                                    <div class="font-semibold text-gray-800">${stop.location}</div>
+                                                    <div class="text-sm text-gray-500">${stop.desc}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                                <div class="mt-4">
+                                    <p class="text-sm font-semibold text-gray-700 mb-2">Available Facilities:</p>
+                                    <div class="flex flex-wrap gap-4">
+                                        ${bus.amenities.map(amenity => `
+                                            <div class="flex items-center space-x-2 text-sm text-gray-600">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                <span>${amenity}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    busListContainer.appendChild(busCard);
+                });
+
+                // Add event listeners for the new toggle buttons
+                document.querySelectorAll('[data-toggle-details]').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const targetId = event.target.dataset.toggleDetails;
+                        const detailsElement = document.getElementById(targetId);
+                        detailsElement.classList.toggle('open');
+                        event.target.textContent = detailsElement.classList.contains('open') ? 'Hide Details' : 'View Details';
+                    });
+                });
+            };
+
+            const sortBusList = (buses) => {
+                const sortValue = sortSelect.value;
+                if (sortValue === 'departure_asc') {
+                    buses.sort((a, b) => {
+                        const timeA = new Date(`2000/01/01 ${a.departureTime}`);
+                        const timeB = new Date(`2000/01/01 ${b.departureTime}`);
+                        return timeA - timeB;
+                    });
+                } else if (sortValue === 'departure_desc') {
+                    buses.sort((a, b) => {
+                        const timeA = new Date(`2000/01/01 ${a.departureTime}`);
+                        const timeB = new Date(`2000/01/01 ${b.departureTime}`);
+                        return timeB - timeA;
+                    });
+                }
+                renderBusCards(buses);
+            };
+
+            searchBtn.addEventListener('click', () => {
+                const source = sourceInput.value.trim();
+                const destination = destinationInput.value.trim();
+                
+                if (!source || !destination) {
+                    return;
+                }
+
+                resultsContainer.classList.add('hidden');
+                loadingSpinner.classList.remove('hidden');
+
+                setTimeout(() => {
+                    const filteredBuses = busData.filter(bus => 
+                        bus.source.toLowerCase() === source.toLowerCase() && 
+                        bus.destination.toLowerCase() === destination.toLowerCase()
+                    );
+                    
+                    currentBuses = filteredBuses;
+                    loadingSpinner.classList.add('hidden');
+                    resultsContainer.classList.remove('hidden');
+                    sortBusList(currentBuses);
+                }, 1000);
+            });
+
+            sortSelect.addEventListener('change', () => {
+                if (currentBuses.length > 0) {
+                    sortBusList(currentBuses);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
