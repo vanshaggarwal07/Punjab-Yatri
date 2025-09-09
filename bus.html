@@ -94,7 +94,26 @@
         .btn-llm:hover {
             background-color: #e68a00;
         }
-
+        
+        .btn-user-type {
+            width: 100%;
+            padding: 24px;
+            border-radius: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            background-color: #ffffff;
+            color: #1c529a;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .btn-user-type:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-4px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+        
         .or-divider {
             display: flex;
             align-items: center;
@@ -437,21 +456,12 @@
             animation: bounce 0.6s infinite alternate;
         }
 
-        .loading-dot:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .loading-dot:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
         @keyframes bounce {
             to {
                 transform: translateY(-8px);
             }
         }
         
-        /* Styles from the second file */
         .gradient-button {
             background-image: linear-gradient(to right, #22c55e, #16a34a);
             transition: transform 0.2s ease-in-out;
@@ -469,7 +479,7 @@
         }
 
         .details-container.open {
-            max-height: 500px; /* Adjust based on content height */
+            max-height: 500px;
         }
         
         .timeline {
@@ -493,7 +503,7 @@
         }
         
         .timeline-item.current-stop::before {
-            background-color: #ef4444; /* Red color for current stop */
+            background-color: #ef4444;
         }
         
         .timeline-item::before {
@@ -517,7 +527,7 @@
             height: 32px;
             z-index: 2;
             pointer-events: none;
-            color: #ef4444; /* Red color for the icon */
+            color: #ef4444;
         }
 
         .day-change-marker {
@@ -526,12 +536,57 @@
             margin-top: -1rem;
             margin-bottom: 1rem;
         }
+        
+        .top-left-options {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .top-left-options button {
+            background-color: #ffffff;
+            color: #1c529a;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+        
+        .top-left-options button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Responsive adjustments for top-left buttons */
+        @media (max-width: 768px) {
+            .top-left-options {
+                flex-direction: row;
+                flex-wrap: wrap;
+                top: 10px;
+                left: 10px;
+            }
+
+            .top-left-options button {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="flex justify-center md:justify-end mb-4 md:mb-0">
-            <button id="mainLanguageBtn" class="main-language-btn font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-100 transition-colors">EN</button>
+        <div class="flex justify-between items-start">
+            <div class="flex flex-col space-y-2 top-left-options">
+                <button id="municipalBtn" class="px-4 py-2 text-base">Municipal Corporation</button>
+                <button id="driverBtn" class="px-4 py-2 text-base">Driver</button>
+            </div>
+            <div class="flex-shrink-0">
+                <button id="mainLanguageBtn" class="main-language-btn font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-100 transition-colors">EN</button>
+            </div>
         </div>
         <h1 class="text-3xl md:text-4xl font-bold text-center mb-4" data-translate-main="main_title">Live Bus Status</h1>
         <p class="text-center text-lg mb-10 text-gray-200" data-translate-main="main_subtitle">Find bus routes, check PNR status, and get travel tips instantly.</p>
@@ -684,7 +739,7 @@
             </div>
         </div>
         <div class="ai-chat-input-area">
-            <input type="text" id="chatInput" placeholder="Type a message..." data-translate-ai-placeholder="chat_placeholder">
+            <input type="text" id="chatInput" placeholder="Type a message..." data-translate-main-placeholder="chat_placeholder">
             <button id="chatSendBtn" data-translate-ai="chat_send_btn">Send</button>
         </div>
     </div>
@@ -716,7 +771,6 @@
 
             const busListContainer = document.getElementById('busList');
             const noResultsMessage = document.getElementById('noResults');
-            const loadingSpinner = document.getElementById('loadingSpinner');
             const sortSelect = document.getElementById('sortSelect');
             const refreshBtn = document.getElementById('refreshBtn');
             const shareBtnAll = document.getElementById('shareBtnAll');
@@ -2054,6 +2108,9 @@
             updateMainLanguage(langCodes[mainLangIndex]);
             updateAiLanguage(langCodes[aiLangIndex]);
             
+            // Set initial view to main search page
+            showView('mainView');
+
         })();
     </script>
 </body>
