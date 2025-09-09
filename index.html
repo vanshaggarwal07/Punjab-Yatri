@@ -271,6 +271,27 @@
             font-size: 20px;
             cursor: pointer;
         }
+        .language-btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            font-size: 14px;
+        }
+        .language-btn-container span {
+            font-size: 10px;
+            opacity: 0.8;
+        }
+        .ai-chat-language-btn, .main-language-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 14px;
+        }
         .ai-chat-language-btn {
             background: rgba(255, 255, 255, 0.2);
             color: #fff;
@@ -279,6 +300,15 @@
             padding: 6px 10px;
             cursor: pointer;
             font-size: 14px;
+        }
+        .main-language-btn {
+            background-color: #fff;
+            color: #333;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .main-language-btn:hover {
+            background-color: #f0f0f0;
         }
         .ai-chat-messages {
             flex-grow: 1;
@@ -365,36 +395,39 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="text-3xl md:text-4xl font-bold text-center mb-4" data-translate="main_title">Live Bus Status</h1>
-        <p class="text-center text-lg mb-10 text-gray-200" data-translate="main_subtitle">Find bus routes, check PNR status, and get travel tips instantly.</p>
+        <div class="flex justify-center md:justify-end mb-4 md:mb-0">
+            <button id="mainLanguageBtn" class="main-language-btn font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-100 transition-colors">EN</button>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-bold text-center mb-4" data-translate-main="main_title">Live Bus Status</h1>
+        <p class="text-center text-lg mb-10 text-gray-200" data-translate-main="main_subtitle">Find bus routes, check PNR status, and get travel tips instantly.</p>
 
         <div class="flex flex-col lg:flex-row lg:space-x-8">
             <!-- Search by Bus Number & PNR Status Card -->
             <div class="card lg:w-1/2">
-                <h2 class="text-xl font-semibold mb-4 text-center" data-translate="bus_number_title">Search by Bus Number</h2>
+                <h2 class="text-xl font-semibold mb-4 text-center" data-translate-main="bus_number_title">Search by Bus Number</h2>
                 <div class="input-group mb-4">
-                    <input id="busNumberInput" type="text" placeholder="Enter Bus Number" class="input-field" data-translate-placeholder="bus_number_placeholder">
+                    <input id="busNumberInput" type="text" placeholder="Enter Bus Number" class="input-field" data-translate-main-placeholder="bus_number_placeholder">
                 </div>
-                <button id="searchByBusBtn" class="btn btn-primary" data-translate="check_status_btn">Check Status</button>
+                <button id="searchByBusBtn" class="btn btn-primary" data-translate-main="check_status_btn">Check Status</button>
 
-                <div class="or-divider" data-translate="or_divider">or</div>
+                <div class="or-divider" data-translate-main="or_divider">or</div>
 
-                <h2 class="text-xl font-semibold mb-4 text-center" data-translate="pnr_title">PNR Status</h2>
+                <h2 class="text-xl font-semibold mb-4 text-center" data-translate-main="pnr_title">PNR Status</h2>
                 <div class="input-group mb-4">
-                    <input id="pnrInput" type="text" placeholder="Enter PNR Number" class="input-field" data-translate-placeholder="pnr_placeholder">
+                    <input id="pnrInput" type="text" placeholder="Enter PNR Number" class="input-field" data-translate-main-placeholder="pnr_placeholder">
                 </div>
-                <button id="checkPnrBtn" class="btn btn-primary" data-translate="check_pnr_btn">Check PNR Status</button>
+                <button id="checkPnrBtn" class="btn btn-primary" data-translate-main="check_pnr_btn">Check PNR Status</button>
             </div>
 
             <!-- Search by Route Card -->
             <div class="card lg:w-1/2">
-                <h2 class="text-xl font-semibold mb-4 text-center" data-translate="route_title">Search by Route</h2>
+                <h2 class="text-xl font-semibold mb-4 text-center" data-translate-main="route_title">Search by Route</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div class="input-group">
-                        <input id="fromStationInput" type="text" placeholder="From Stop" class="input-field" data-translate-placeholder="from_stop_placeholder">
+                        <input id="fromStationInput" type="text" placeholder="From Stop" class="input-field" data-translate-main-placeholder="from_stop_placeholder">
                     </div>
                     <div class="input-group relative">
-                        <input id="toStationInput" type="text" placeholder="To Stop" class="input-field" data-translate-placeholder="to_stop_placeholder">
+                        <input id="toStationInput" type="text" placeholder="To Stop" class="input-field" data-translate-main-placeholder="to_stop_placeholder">
                         <span id="swapStopsBtn" class="swap-icon-btn">
                             <svg class="swap-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="17 1 17 8 23 8"></polyline>
@@ -408,9 +441,9 @@
                 
                 <!-- Calendar Date Selector -->
                 <div class="date-container mb-4">
-                    <label class="block text-gray-700 font-medium mb-2" data-translate="departure_date">Departure Date</label>
+                    <label class="block text-gray-700 font-medium mb-2" data-translate-main="departure_date">Departure Date</label>
                     <div id="dateDisplay" class="date-display">
-                        <span data-translate="select_date">Select Date</span>
+                        <span data-translate-main="select_date">Select Date</span>
                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                     </div>
                     <div id="calendarPopup" class="calendar-popup">
@@ -424,20 +457,20 @@
                             </button>
                         </div>
                         <div id="calendarGrid" class="calendar-grid">
-                            <span class="day-name" data-translate="day_sun">Sun</span>
-                            <span class="day-name" data-translate="day_mon">Mon</span>
-                            <span class="day-name" data-translate="day_tue">Tue</span>
-                            <span class="day-name" data-translate="day_wed">Wed</span>
-                            <span class="day-name" data-translate="day_thu">Thu</span>
-                            <span class="day-name" data-translate="day_fri">Fri</span>
-                            <span class="day-name" data-translate="day_sat">Sat</span>
+                            <span class="day-name" data-translate-main="day_sun">Sun</span>
+                            <span class="day-name" data-translate-main="day_mon">Mon</span>
+                            <span class="day-name" data-translate-main="day_tue">Tue</span>
+                            <span class="day-name" data-translate-main="day_wed">Wed</span>
+                            <span class="day-name" data-translate-main="day_thu">Thu</span>
+                            <span class="day-name" data-translate-main="day_fri">Fri</span>
+                            <span class="day-name" data-translate-main="day_sat">Sat</span>
                         </div>
                     </div>
                     <input id="dateInput" type="hidden">
                 </div>
 
-                <button id="searchByRouteBtn" class="btn btn-primary mb-2" data-translate="check_buses_btn">Check Buses</button>
-                <button id="getTravelTipsBtn" class="btn btn-primary btn-llm" data-translate="travel_tips_btn">Get Travel Tips ✨</button>
+                <button id="searchByRouteBtn" class="btn btn-primary mb-2" data-translate-main="check_buses_btn">Check Buses</button>
+                <button id="getTravelTipsBtn" class="btn btn-primary btn-llm" data-translate-main="travel_tips_btn">Get Travel Tips ✨</button>
             </div>
         </div>
 
@@ -457,20 +490,20 @@
     <!-- AI Chat Box -->
     <div class="ai-chat-box" id="aiChatBox">
         <div class="ai-chat-header">
-            <h3 data-translate="ai_chat_title">AI Assistant</h3>
+            <h3 data-translate-ai="ai_chat_title">AI Assistant</h3>
             <div class="flex items-center space-x-2">
-                <button id="languageBtn" class="ai-chat-language-btn">EN</button>
+                <button id="aiLanguageBtn" class="ai-chat-language-btn">EN</button>
                 <button id="closeChatBtn" class="ai-chat-close-btn">&times;</button>
             </div>
         </div>
         <div class="ai-chat-messages" id="chatMessages">
-            <div class="message ai" data-translate="ai_initial_message">
+            <div class="message ai" data-translate-ai="ai_initial_message">
                 Hello! I am your AI bus assistant. Ask me anything about bus travel!
             </div>
         </div>
         <div class="ai-chat-input-area">
-            <input type="text" id="chatInput" placeholder="Type a message..." data-translate-placeholder="chat_placeholder">
-            <button id="chatSendBtn" data-translate="chat_send_btn">Send</button>
+            <input type="text" id="chatInput" placeholder="Type a message..." data-translate-ai-placeholder="chat_placeholder">
+            <button id="chatSendBtn" data-translate-ai="chat_send_btn">Send</button>
         </div>
     </div>
 
@@ -502,7 +535,8 @@
             const chatMessages = document.getElementById('chatMessages');
             const chatInput = document.getElementById('chatInput');
             const chatSendBtn = document.getElementById('chatSendBtn');
-            const languageBtn = document.getElementById('languageBtn');
+            const mainLanguageBtn = document.getElementById('mainLanguageBtn');
+            const aiLanguageBtn = document.getElementById('aiLanguageBtn');
 
             // --- Internationalization (i18n) Logic ---
             const translations = {
@@ -579,24 +613,30 @@
                     loading_message: "ਪ੍ਰਤੀਕਿਰਿਆ ਤਿਆਰ ਹੋ ਰਹੀ ਹੈ..."
                 }
             };
-            let currentLang = 'en';
+            const langNames = {
+                'en': 'English',
+                'hi': 'हिंदी',
+                'pa': 'ਪੰਜਾਬੀ'
+            };
+            
+            let mainLangIndex = 0;
+            let aiLangIndex = 0;
             const langCodes = ['en', 'hi', 'pa'];
-            let langIndex = 0;
 
-            const updateLanguage = (lang) => {
-                document.querySelectorAll('[data-translate]').forEach(el => {
-                    const key = el.getAttribute('data-translate');
+            const updateMainLanguage = (lang) => {
+                document.querySelectorAll('[data-translate-main]').forEach(el => {
+                    const key = el.getAttribute('data-translate-main');
                     if (translations[lang] && translations[lang][key]) {
                         el.textContent = translations[lang][key];
                     }
                 });
-                document.querySelectorAll('[data-translate-placeholder]').forEach(el => {
-                    const key = el.getAttribute('data-translate-placeholder');
+                document.querySelectorAll('[data-translate-main-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-translate-main-placeholder');
                     if (translations[lang] && translations[lang][key]) {
                         el.placeholder = translations[lang][key];
                     }
                 });
-                languageBtn.textContent = lang.toUpperCase();
+                mainLanguageBtn.innerHTML = `<div class="language-btn-container">${langNames[lang]}<span>${lang.toUpperCase()}</span></div>`;
                 // Update calendar day names
                 const dayNameElements = document.querySelectorAll('.day-name');
                 if (dayNameElements.length > 0) {
@@ -610,12 +650,34 @@
                 }
             };
 
-            languageBtn.addEventListener('click', () => {
-                langIndex = (langIndex + 1) % langCodes.length;
-                currentLang = langCodes[langIndex];
-                updateLanguage(currentLang);
-                // Rerender calendar to update day names
+            const updateAiLanguage = (lang) => {
+                 document.querySelectorAll('[data-translate-ai]').forEach(el => {
+                    const key = el.getAttribute('data-translate-ai');
+                    if (translations[lang] && translations[lang][key]) {
+                        el.textContent = translations[lang][key];
+                    }
+                });
+                document.querySelectorAll('[data-translate-ai-placeholder]').forEach(el => {
+                    const key = el.getAttribute('data-translate-ai-placeholder');
+                    if (translations[lang] && translations[lang][key]) {
+                        el.placeholder = translations[lang][key];
+                    }
+                });
+                aiLanguageBtn.innerHTML = `<div class="language-btn-container">${langNames[lang]}<span>${lang.toUpperCase()}</span></div>`;
+            }
+
+            mainLanguageBtn.addEventListener('click', () => {
+                mainLangIndex = (mainLangIndex + 1) % langCodes.length;
+                const newLang = langCodes[mainLangIndex];
+                updateMainLanguage(newLang);
                 renderCalendar(currentDate);
+            });
+
+            aiLanguageBtn.addEventListener('click', () => {
+                aiLangIndex = (aiLangIndex + 1) % langCodes.length;
+                const newLang = langCodes[aiLangIndex];
+                updateAiLanguage(newLang);
+                appendMessage(translations[newLang].ai_initial_message, 'ai');
             });
 
             // --- Calendar Logic ---
@@ -895,7 +957,7 @@
                     const payload = {
                         contents: [{
                             parts: [{
-                                text: `Your response should be formatted in markdown for easy readability. Use headings, bold text, and bullet points. You are a helpful bus travel assistant for India. The user's query is: "${userMessage}". Please respond in ${currentLang}.`
+                                text: `Your response should be formatted in markdown for easy readability. Use headings, bold text, and bullet points. You are a helpful bus travel assistant for India. The user's query is: "${userMessage}". Please respond in ${langCodes[aiLangIndex]}.`
                             }]
                         }],
                         model: "gemini-2.5-flash-preview-05-20"
@@ -961,7 +1023,8 @@
             }
             
             // Initial language update
-            updateLanguage(currentLang);
+            updateMainLanguage(langCodes[mainLangIndex]);
+            updateAiLanguage(langCodes[aiLangIndex]);
             
         })();
     </script>
