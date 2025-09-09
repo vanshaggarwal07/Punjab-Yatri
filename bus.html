@@ -879,6 +879,9 @@
             // Hardcoded mock data for demonstration
             const busData = [
                 {
+                    busNumber: "CH01A 7890",
+                    pnrNumber: "PNR12345",
+                    busName: "Punjab Roadways Express",
                     source: "Ludhiana",
                     destination: "Amritsar",
                     operator: "Punjab Roadways",
@@ -887,9 +890,9 @@
                     duration: "4h",
                     rating: "4.4",
                     seatingTypes: [
-                        { name: "Seater", seats: 12 },
-                        { name: "Sleeper", seats: 12 },
-                        { name: "Private Sleeper", seats: 12 }
+                        "Seater",
+                        "Sleeper",
+                        "Private Sleeper"
                     ],
                     amenities: ["AC", "Water Bottle", "Blanket"],
                     boardingPoint: "ISBT Ludhiana Gate 1, Platform No. 5",
@@ -902,9 +905,14 @@
                         { time: "09:00 AM", location: "Jalandhar Bypass", desc: "Bus Stop", current: true },
                         { time: "10:30 AM", location: "Kartarpur", desc: "City Center", current: false },
                         { time: "12:00 PM", location: "Amritsar Bus Stand", desc: "Dropping Point", current: false }
-                    ]
+                    ],
+                    passengerName: "John Doe",
+                    seatNumber: "12A"
                 },
                 {
+                    busNumber: "PB02B 1234",
+                    pnrNumber: "PNR67890",
+                    busName: "New Star Comfort",
                     source: "Ludhiana",
                     destination: "Amritsar",
                     operator: "New Star Travels",
@@ -913,9 +921,9 @@
                     duration: "4h",
                     rating: "4.6",
                     seatingTypes: [
-                        { name: "AC Seater", seats: 20 },
-                        { name: "AC Sleeper", seats: 10 },
-                        { name: "Private Sleeper", seats: 5 }
+                        "AC Seater",
+                        "AC Sleeper",
+                        "Private Sleeper"
                     ],
                     amenities: ["AC", "WiFi", "Water Bottle"],
                     boardingPoint: "Bharat Nagar Chowk, near Metro Bus Stop",
@@ -928,9 +936,14 @@
                         { time: "11:00 AM", location: "Jalandhar Bybass", desc: "Bus Stop", current: false },
                         { time: "12:30 PM", location: "Town Hall, Amritsar", desc: "City Center", current: false },
                         { time: "01:30 PM", location: "Golden Temple, Amritsar", desc: "Dropping Point", current: false }
-                    ]
+                    ],
+                    passengerName: "Jane Smith",
+                    seatNumber: "N/A"
                 },
                 {
+                    busNumber: "DL01C 5678",
+                    pnrNumber: "PNR11223",
+                    busName: "Royal Transport Sleeper",
                     source: "Ludhiana",
                     destination: "Amritsar",
                     operator: "Royal Transport",
@@ -939,8 +952,8 @@
                     duration: "4h",
                     rating: "4.1",
                     seatingTypes: [
-                        { name: "Seater", seats: 25 },
-                        { name: "Sleeper", seats: 15 }
+                        "Seater",
+                        "Sleeper"
                     ],
                     amenities: ["AC", "Charging Point"],
                     boardingPoint: "Ferozepur Road, near MBD Mall",
@@ -953,19 +966,23 @@
                         { time: "07:30 PM", location: "Jalandhar Bus Stand", desc: "Bus Stop", current: true },
                         { time: "09:00 PM", location: "Model Town, Amritsar", desc: "City Center", current: false },
                         { time: "10:00 PM", location: "Hall Gate, Amritsar", desc: "Dropping Point", current: false }
-                    ]
+                    ],
+                    passengerName: "Alice Johnson",
+                    seatNumber: "23"
                 },
                 {
+                    busNumber: "PB06D 9876",
                     source: "Ludhiana",
                     destination: "Jalandhar",
                     operator: "Orbit Bus",
+                    busName: "Orbit Bus Standard",
                     departureTime: "10:30 AM",
                     arrivalTime: "12:30 PM",
                     duration: "2h",
                     rating: "4.2",
                     seatingTypes: [
-                        { name: "Seater", seats: 25 },
-                        { name: "Sleeper", seats: 15 }
+                        "Seater",
+                        "Sleeper"
                     ],
                     amenities: ["AC", "Charging Point"],
                     boardingPoint: "ISBT Ludhiana, Platform No. 7",
@@ -980,106 +997,9 @@
                     ]
                 },
                 {
-                    source: "Ludhiana",
-                    destination: "Jalandhar",
-                    operator: "Golden Lines",
-                    departureTime: "02:00 PM",
-                    arrivalTime: "04:00 PM",
-                    duration: "2h",
-                    rating: "4.5",
-                    seatingTypes: [
-                        { name: "Non-AC Seater", seats: 30 },
-                        { name: "Private Sleeper", seats: 8 }
-                    ],
-                    amenities: ["Water Bottle"],
-                    boardingPoint: "Model Town Ext., near the Gurudwara",
-                    droppingPoint: "Jalandhar Bypass",
-                    liveStatus: "Arrived at destination",
-                    currentLocation: "Jalandhar Bypass",
-                    mapLink: "https://www.google.com/maps/dir/Ludhiana,+Punjab,+India/Jalandhar,+Punjab,+India",
-                    stops: [
-                        { time: "02:00 PM", location: "Model Town Ext.", desc: "Boarding Point", current: false },
-                        { time: "03:00 PM", location: "Phillaur", desc: "Bus Stop", current: false },
-                        { time: "04:00 PM", location: "Jalandhar Bypass", desc: "Dropping Point", current: true }
-                    ]
-                },
-                {
-                    source: "Amritsar",
-                    destination: "Chandigarh",
-                    operator: "CTU",
-                    departureTime: "09:00 AM",
-                    arrivalTime: "02:00 PM",
-                    duration: "5h",
-                    rating: "4.0",
-                    seatingTypes: [
-                        { name: "Seater", seats: 8 },
-                        { name: "Sleeper", seats: 10 }
-                    ],
-                    amenities: ["Water Bottle"],
-                    boardingPoint: "Amritsar Bus Stand, outside Platform 3",
-                    droppingPoint: "ISBT Chandigarh",
-                    liveStatus: "On Time",
-                    currentLocation: "Ludhiana Bus Stand",
-                    mapLink: "https://www.google.com/maps/dir/Amritsar,+Punjab,+India/Chandigarh,+India",
-                    stops: [
-                        { time: "09:00 AM", location: "Amritsar Bus Stand", desc: "Boarding Point", current: false },
-                        { time: "10:30 AM", location: "Jalandhar Bypass", desc: "Bus Stop", current: false },
-                        { time: "12:00 PM", location: "Ludhiana Bus Stand", desc: "Bus Stop", current: true },
-                        { time: "01:30 PM", location: "Kharar Bypass", desc: "Bus Stop", current: false },
-                        { time: "02:00 PM", location: "ISBT Chandigarh", desc: "Dropping Point", current: false }
-                    ]
-                },
-                {
-                    source: "Amritsar",
-                    destination: "Chandigarh",
-                    operator: "Maharaja Travels",
-                    departureTime: "11:30 AM",
-                    arrivalTime: "04:30 PM",
-                    duration: "5h",
-                    rating: "4.3",
-                    seatingTypes: [
-                        { name: "AC Seater", seats: 15 },
-                        { name: "AC Sleeper", seats: 10 },
-                        { name: "Private Sleeper", seats: 10 }
-                    ],
-                    amenities: ["AC", "Blanket"],
-                    boardingPoint: "Amritsar Bus Stand, near Booking Counter",
-                    droppingPoint: "Sector 17, Chandigarh",
-                    liveStatus: "Delayed by 30 mins",
-                    currentLocation: "Jalandhar City Center",
-                    mapLink: "https://www.google.com/maps/dir/Amritsar,+Punjab,+India/Chandigarh,+India",
-                    stops: [
-                        { time: "11:30 AM", location: "Amritsar Bus Stand", desc: "Boarding Point", current: false },
-                        { time: "01:00 PM", location: "Jalandhar City Center", desc: "Bus Stop", current: true },
-                        { time: "03:00 PM", location: "Mohali Bypass", desc: "Bus Stop", current: false },
-                        { time: "04:30 PM", location: "Sector 17, Chandigarh", desc: "Dropping Point", current: false }
-                    ]
-                },
-                {
-                    source: "Jalandhar",
-                    destination: "Chandigarh",
-                    operator: "Raj Travels",
-                    departureTime: "06:00 AM",
-                    arrivalTime: "10:00 AM",
-                    duration: "4h",
-                    rating: "4.5",
-                    seatingTypes: [
-                        { name: "AC Sleeper", seats: 5 }
-                    ],
-                    amenities: ["AC", "Blanket", "Water Bottle"],
-                    boardingPoint: "Jalandhar Bus Stand, Platform 2",
-                    droppingPoint: "Sector 17, Chandigarh",
-                    liveStatus: "On Time",
-                    currentLocation: "Ludhiana Bypass",
-                    mapLink: "https://www.google.com/maps/dir/Jalandhar,+Punjab,+India/Chandigarh,+India",
-                    stops: [
-                        { time: "06:00 AM", location: "Jalandhar Bus Stand", desc: "Boarding Point", current: false },
-                        { time: "07:30 AM", location: "Ludhiana Bypass", desc: "Bus Stop", current: true },
-                        { time: "08:45 AM", location: "Kharar Bus Stand", desc: "Bus Stop", current: false },
-                        { time: "10:00 AM", location: "Sector 17, Chandigarh", desc: "Dropping Point", current: false }
-                    ]
-                },
-                {
+                    busNumber: "HR03E 5432",
+                    pnrNumber: "PNR44556",
+                    busName: "Zingbus Overnight",
                     source: "Ludhiana",
                     destination: "Delhi",
                     operator: "Zingbus",
@@ -1088,8 +1008,8 @@
                     duration: "7h",
                     rating: "4.7",
                     seatingTypes: [
-                        { name: "AC Sleeper", seats: 18 },
-                        { name: "AC Seater", seats: 20 }
+                        "AC Sleeper",
+                        "AC Seater"
                     ],
                     amenities: ["AC", "WiFi", "Blanket", "Water Bottle"],
                     boardingPoint: "Ludhiana Bypass, near toll plaza",
@@ -1103,130 +1023,14 @@
                         { time: "04:00 AM", location: "Karnal Bypass", desc: "Bus Stop", current: false },
                         { time: "06:00 AM", location: "Delhi ISBT Kashmere Gate", desc: "Dropping Point", current: false }
                     ],
-                    overnight: true
+                    overnight: true,
+                    passengerName: "Robert Green",
+                    seatNumber: "15C"
                 },
                 {
-                    source: "Ludhiana",
-                    destination: "Delhi",
-                    operator: "New Punjab Travels",
-                    departureTime: "09:00 PM",
-                    arrivalTime: "05:00 AM",
-                    duration: "8h",
-                    rating: "4.0",
-                    seatingTypes: [
-                        { name: "Seater", seats: 25 },
-                        { name: "Sleeper", seats: 18 }
-                    ],
-                    amenities: ["AC", "Water Bottle"],
-                    boardingPoint: "Ludhiana Bus Stand, Main Gate",
-                    droppingPoint: "Gurgaon Bus Stand",
-                    liveStatus: "On Time",
-                    currentLocation: "Panipat Bus Stop",
-                    mapLink: "https://www.google.com/maps/dir/Ludhiana,+Punjab,+India/Delhi,+India",
-                    stops: [
-                        { time: "09:00 PM", location: "Ludhiana Bus Stand", desc: "Boarding Point", current: false },
-                        { time: "11:30 PM", location: "Panipat Bus Stop", desc: "Bus Stop", current: true },
-                        { time: "03:00 AM", location: "Dhaula Kuan", desc: "Bus Stop", current: false },
-                        { time: "05:00 AM", location: "Gurgaon Bus Stand", desc: "Dropping Point", current: false }
-                    ],
-                    overnight: true
-                },
-                {
-                    source: "Amritsar",
-                    destination: "Jalandhar",
-                    operator: "CTU",
-                    departureTime: "07:00 AM",
-                    arrivalTime: "08:30 AM",
-                    duration: "1h 30m",
-                    rating: "4.1",
-                    seatingTypes: [
-                        { name: "Non-AC Seater", seats: 30 }
-                    ],
-                    amenities: ["Charging Point"],
-                    boardingPoint: "Amritsar City Bus Stand, Platform 1",
-                    droppingPoint: "Jalandhar Bus Stand",
-                    liveStatus: "Arrived at destination",
-                    currentLocation: "Jalandhar Bus Stand",
-                    mapLink: "https://www.google.com/maps/dir/Amritsar,+Punjab,+India/Jalandhar,+Punjab,+India",
-                    stops: [
-                        { time: "07:00 AM", location: "Amritsar City Bus Stand", desc: "Boarding Point", current: false },
-                        { time: "08:00 AM", location: "Rayya Bypass", desc: "Bus Stop", current: false },
-                        { time: "08:30 AM", location: "Jalandhar Bus Stand", desc: "Dropping Point", current: true }
-                    ]
-                },
-                {
-                    source: "Amritsar",
-                    destination: "Jalandhar",
-                    operator: "Sukhmani Transport",
-                    departureTime: "03:00 PM",
-                    arrivalTime: "04:30 PM",
-                    duration: "1h 30m",
-                    rating: "4.5",
-                    seatingTypes: [
-                        { name: "AC Seater", seats: 25 },
-                        { name: "Private Sleeper", seats: 5 }
-                    ],
-                    amenities: ["AC", "WiFi"],
-                    boardingPoint: "Amritsar Bypass, near the toll booth",
-                    droppingPoint: "Ludhiana Bypass",
-                    liveStatus: "On Time",
-                    currentLocation: "Kapurthala Chowk",
-                    mapLink: "https://www.google.com/maps/dir/Amritsar,+Punjab,+India/Jalandhar,+Punjab,+India",
-                    stops: [
-                        { time: "03:00 PM", location: "Amritsar Bypass", desc: "Boarding Point", current: false },
-                        { time: "03:45 PM", location: "Kapurthala Chowk", desc: "Bus Stop", current: true },
-                        { time: "04:30 PM", location: "Ludhiana Bypass", desc: "Dropping Point", current: false }
-                    ]
-                },
-                {
-                    source: "Chandigarh",
-                    destination: "Patiala",
-                    operator: "Royal Travels",
-                    departureTime: "10:00 AM",
-                    arrivalTime: "12:00 PM",
-                    duration: "2h",
-                    rating: "4.3",
-                    seatingTypes: [
-                        { name: "AC Seater", seats: 10 }
-                    ],
-                    amenities: ["AC"],
-                    boardingPoint: "ISBT Sector 43, Chandigarh, Platform 12",
-                    droppingPoint: "Patiala Bus Stand",
-                    liveStatus: "Delayed by 10 mins",
-                    currentLocation: "Zirakpur",
-                    mapLink: "https://www.google.com/maps/dir/Chandigarh,+India/Patiala,+Punjab,+India",
-                    stops: [
-                        { time: "10:00 AM", location: "ISBT Sector 43, Chandigarh", desc: "Boarding Point", current: false },
-                        { time: "11:00 AM", location: "Zirakpur", desc: "Bus Stop", current: true },
-                        { time: "12:00 PM", location: "Patiala Bus Stand", desc: "Dropping Point", current: false }
-                    ]
-                },
-                {
-                    source: "Jalandhar",
-                    destination: "Delhi",
-                    operator: "Yolo Bus",
-                    departureTime: "09:30 PM",
-                    arrivalTime: "05:00 AM",
-                    duration: "7h 30m",
-                    rating: "4.6",
-                    seatingTypes: [
-                        { name: "AC Sleeper", seats: 22 }
-                    ],
-                    amenities: ["AC", "WiFi", "Blanket"],
-                    boardingPoint: "Jalandhar Bypass, near HP Petrol Pump",
-                    droppingPoint: "Anand Vihar, Delhi",
-                    liveStatus: "On Time",
-                    currentLocation: "Ludhiana Bypass",
-                    mapLink: "https://www.google.com/maps/dir/Jalandhar,+Punjab,+India/Delhi,+India",
-                    stops: [
-                        { time: "09:30 PM", location: "Jalandhar Bypass", desc: "Boarding Point", current: false },
-                        { time: "11:00 PM", location: "Ludhiana Bypass", desc: "Bus Stop", current: true },
-                        { time: "02:00 AM", location: "Karnal", desc: "Bus Stop", current: false },
-                        { time: "05:00 AM", location: "Anand Vihar, Delhi", desc: "Dropping Point", current: false }
-                    ],
-                    overnight: true
-                },
-                {
+                    busNumber: "HP63F 3210",
+                    pnrNumber: "PNR66778",
+                    busName: "Himachal Roadways Semi-Deluxe",
                     source: "Patiala",
                     destination: "Ludhiana",
                     operator: "Himachal Roadways",
@@ -1235,7 +1039,7 @@
                     duration: "2h",
                     rating: "3.9",
                     seatingTypes: [
-                        { name: "Non-AC Seater", seats: 15 }
+                        "Non-AC Seater"
                     ],
                     amenities: ["Water Bottle"],
                     boardingPoint: "Patiala Bus Stand, Platform 4",
@@ -1247,9 +1051,14 @@
                         { time: "02:00 PM", location: "Patiala Bus Stand", desc: "Boarding Point", current: false },
                         { time: "03:00 PM", location: "Samana", desc: "Bus Stop", current: true },
                         { time: "04:00 PM", location: "ISBT Ludhiana", desc: "Dropping Point", current: false }
-                    ]
+                    ],
+                    passengerName: "Michael Brown",
+                    seatNumber: "N/A"
                 },
                 {
+                    busNumber: "JK02G 8765",
+                    pnrNumber: "PNR99887",
+                    busName: "JKRTC Valley Voyager",
                     source: "Amritsar",
                     destination: "Srinagar",
                     operator: "JKRTC",
@@ -1258,7 +1067,7 @@
                     duration: "15h",
                     rating: "4.8",
                     seatingTypes: [
-                        { name: "AC Sleeper", seats: 9 }
+                        "AC Sleeper"
                     ],
                     amenities: ["AC", "Water Bottle", "Snacks"],
                     boardingPoint: "Amritsar City Bus Stand, near Hotel Grand",
@@ -1271,9 +1080,42 @@
                         { time: "07:00 AM", location: "Pathankot", desc: "Bus Stop", current: true },
                         { time: "01:00 PM", location: "Jammu Tawi", desc: "Bus Stop", current: false },
                         { time: "08:00 PM", location: "Srinagar Bus Stand", desc: "Dropping Point", current: false }
-                    ]
+                    ],
+                    passengerName: "David Wilson",
+                    seatNumber: "3B"
                 },
                 {
+                    busNumber: "PB11H 4321",
+                    pnrNumber: "PNR55443",
+                    busName: "GoBus Luxury",
+                    source: "Ludhiana",
+                    destination: "Chandigarh",
+                    operator: "GoBus",
+                    departureTime: "09:00 AM",
+                    arrivalTime: "11:30 AM",
+                    duration: "2h 30m",
+                    rating: "4.5",
+                    seatingTypes: [
+                        "AC Seater"
+                    ],
+                    amenities: ["AC", "Charging Point"],
+                    boardingPoint: "Ludhiana Bus Stand, Platform 10",
+                    droppingPoint: "ISBT Sector 43, Chandigarh",
+                    liveStatus: "On Time",
+                    currentLocation: "Mohali Bypass",
+                    mapLink: "https://www.google.com/maps/dir/Ludhiana,+Punjab,+India/Chandigarh,+India",
+                    stops: [
+                        { time: "09:00 AM", location: "Ludhiana Bus Stand", desc: "Boarding Point", current: false },
+                        { time: "10:30 AM", location: "Mohali Bypass", desc: "Bus Stop", current: true },
+                        { time: "11:30 AM", location: "ISBT Sector 43, Chandigarh", desc: "Dropping Point", current: false }
+                    ],
+                    passengerName: "Emily White",
+                    seatNumber: "19"
+                },
+                {
+                    busNumber: "DL12I 9876",
+                    pnrNumber: "PNR22110",
+                    busName: "IntrCity SmartBus Sleeper",
                     source: "Chandigarh",
                     destination: "Delhi",
                     operator: "IntrCity SmartBus",
@@ -1282,8 +1124,8 @@
                     duration: "8h",
                     rating: "4.9",
                     seatingTypes: [
-                        { name: "Sleeper", seats: 20 },
-                        { name: "Private Sleeper", seats: 10 }
+                        "Sleeper",
+                        "Private Sleeper"
                     ],
                     amenities: ["AC", "WiFi", "Blanket", "Water Bottle"],
                     boardingPoint: "ISBT Sector 43, Chandigarh, Platform 14",
@@ -1298,9 +1140,14 @@
                         { time: "04:00 AM", location: "Sonipat", desc: "Bus Stop", current: false },
                         { time: "07:00 AM", location: "ISBT Kashmere Gate, Delhi", desc: "Dropping Point", current: false }
                     ],
-                    overnight: true
+                    overnight: true,
+                    passengerName: "Olivia Taylor",
+                    seatNumber: "4A"
                 },
                 {
+                    busNumber: "RJ14J 5678",
+                    pnrNumber: "PNR77665",
+                    busName: "Maharaja Travels Royal",
                     source: "Amritsar",
                     destination: "Jaipur",
                     operator: "Maharaja Travels",
@@ -1309,7 +1156,7 @@
                     duration: "12h 30m",
                     rating: "4.3",
                     seatingTypes: [
-                        { name: "AC Sleeper", seats: 15 }
+                        "AC Sleeper"
                     ],
                     amenities: ["AC", "Blanket", "Entertainment System"],
                     boardingPoint: "Amritsar City Bus Stand, Platform 8",
@@ -1324,9 +1171,14 @@
                         { time: "05:00 AM", location: "Hanumangarh", desc: "Bus Stop", current: false },
                         { time: "09:30 AM", location: "Jaipur Bus Stand", desc: "Dropping Point", current: false }
                     ],
-                    overnight: true
+                    overnight: true,
+                    passengerName: "Sophia Brown",
+                    seatNumber: "9B"
                 },
                 {
+                    busNumber: "HR05K 1234",
+                    pnrNumber: "PNR33445",
+                    busName: "New Punjab Travels Deluxe",
                     source: "Ludhiana",
                     destination: "Gurgaon",
                     operator: "New Punjab Travels",
@@ -1335,9 +1187,9 @@
                     duration: "7h",
                     rating: "4.0",
                     seatingTypes: [
-                        { name: "Seater", seats: 25 },
-                        { name: "Sleeper", seats: 18 },
-                        { name: "Private Sleeper", seats: 8 }
+                        "Seater",
+                        "Sleeper",
+                        "Private Sleeper"
                     ],
                     amenities: ["AC", "Water Bottle"],
                     boardingPoint: "Ludhiana Bus Stand, Main Gate",
@@ -1351,9 +1203,14 @@
                         { time: "03:00 AM", location: "Delhi ISBT", desc: "Bus Stop", current: false },
                         { time: "05:00 AM", location: "Gurgaon Bus Stand", desc: "Dropping Point", current: false }
                     ],
-                    overnight: true
+                    overnight: true,
+                    passengerName: "Daniel Lee",
+                    seatNumber: "21"
                 },
                 {
+                    busNumber: "HP63L 8765",
+                    pnrNumber: "PNR88990",
+                    busName: "Himachal Tours AC",
                     source: "Jalandhar",
                     destination: "Shimla",
                     operator: "Himachal Tours",
@@ -1362,7 +1219,7 @@
                     duration: "6h",
                     rating: "4.6",
                     seatingTypes: [
-                        { name: "Non-AC Seater", seats: 35 }
+                        "Non-AC Seater"
                     ],
                     amenities: ["Charging Point"],
                     boardingPoint: "Jalandhar Bus Stand, outside Platform 5",
@@ -1375,9 +1232,14 @@
                         { time: "07:00 AM", location: "Ropar Bus Stand", desc: "Bus Stop", current: true },
                         { time: "09:00 AM", location: "Solan", desc: "Bus Stop", current: false },
                         { time: "11:00 AM", location: "Shimla Bus Stand", desc: "Dropping Point", current: false }
-                    ]
+                    ],
+                    passengerName: "Laura Kim",
+                    seatNumber: "N/A"
                 },
                 {
+                    busNumber: "PB11M 1234",
+                    pnrNumber: "PNR11223",
+                    busName: "Patiala Express",
                     source: "Patiala",
                     destination: "Delhi",
                     operator: "Patiala Express",
@@ -1386,7 +1248,7 @@
                     duration: "6h 30m",
                     rating: "4.1",
                     seatingTypes: [
-                        { name: "AC Seater", seats: 20 }
+                        "AC Seater"
                     ],
                     amenities: ["AC", "Water Bottle"],
                     boardingPoint: "Patiala City Bus Stand, Gate 3",
@@ -1400,9 +1262,14 @@
                         { time: "11:00 PM", location: "Karnal Bypass", desc: "Bus Stop", current: false },
                         { time: "02:00 AM", location: "Delhi ISBT Kashmere Gate", desc: "Dropping Point", current: false }
                     ],
-                    overnight: true
+                    overnight: true,
+                    passengerName: "Jack Smith",
+                    seatNumber: "15"
                 },
                 {
+                    busNumber: "MH04N 5678",
+                    pnrNumber: "PNR44332",
+                    busName: "VRL Travels Sleeper",
                     source: "Amritsar",
                     destination: "Mumbai",
                     operator: "VRL Travels",
@@ -1411,8 +1278,8 @@
                     duration: "26h",
                     rating: "4.2",
                     seatingTypes: [
-                        { name: "AC Sleeper", seats: 10 },
-                        { name: "Non-AC Sleeper", seats: 8 }
+                        "AC Sleeper",
+                        "Non-AC Sleeper"
                     ],
                     amenities: ["AC", "Blanket", "Pillow"],
                     boardingPoint: "Amritsar Airport, Domestic Terminal",
@@ -1427,9 +1294,14 @@
                         { time: "01:00 PM", location: "Vadodara", desc: "Bus Stop", current: false },
                         { time: "08:00 PM", location: "Borivali, Mumbai", desc: "Dropping Point", current: false }
                     ],
-                    overnight: true
+                    overnight: true,
+                    passengerName: "Sara Davis",
+                    seatNumber: "5"
                 },
                 {
+                    busNumber: "PB11P 1234",
+                    pnrNumber: "PNR77889",
+                    busName: "GoBus Express",
                     source: "Ludhiana",
                     destination: "Chandigarh",
                     operator: "GoBus",
@@ -1438,7 +1310,7 @@
                     duration: "2h 30m",
                     rating: "4.5",
                     seatingTypes: [
-                        { name: "AC Seater", seats: 30 }
+                        "AC Seater"
                     ],
                     amenities: ["AC", "Charging Point"],
                     boardingPoint: "Ludhiana Bus Stand, Platform 10",
@@ -1450,9 +1322,14 @@
                         { time: "09:00 AM", location: "Ludhiana Bus Stand", desc: "Boarding Point", current: false },
                         { time: "10:30 AM", location: "Mohali Bypass", desc: "Bus Stop", current: true },
                         { time: "11:30 AM", location: "ISBT Sector 43, Chandigarh", desc: "Dropping Point", current: false }
-                    ]
+                    ],
+                    passengerName: "Chris Evans",
+                    seatNumber: "N/A"
                 },
                 {
+                    busNumber: "DL12Q 5678",
+                    pnrNumber: "PNR99001",
+                    busName: "Zingbus Metro",
                     source: "Delhi",
                     destination: "Ludhiana",
                     operator: "Zingbus",
@@ -1461,8 +1338,8 @@
                     duration: "7h 30m",
                     rating: "4.7",
                     seatingTypes: [
-                        { name: "AC Sleeper", seats: 15 },
-                        { name: "AC Seater", seats: 10 }
+                        "AC Sleeper",
+                        "AC Seater"
                     ],
                     amenities: ["AC", "WiFi", "Blanket"],
                     boardingPoint: "Delhi ISBT Kashmere Gate, Platform 1",
@@ -1476,9 +1353,14 @@
                         { time: "02:00 AM", location: "Ambala Cantt", desc: "Bus Stop", current: true },
                         { time: "05:00 AM", location: "Ludhiana Bus Stand", desc: "Dropping Point", current: false }
                     ],
-                    overnight: true
+                    overnight: true,
+                    passengerName: "Lisa Chen",
+                    seatNumber: "7B"
                 },
                 {
+                    busNumber: "PB06R 4321",
+                    pnrNumber: "PNR22334",
+                    busName: "CTU City Bus",
                     source: "Jalandhar",
                     destination: "Amritsar",
                     operator: "CTU",
@@ -1487,7 +1369,7 @@
                     duration: "1h 30m",
                     rating: "4.1",
                     seatingTypes: [
-                        { name: "Non-AC Seater", seats: 40 }
+                        "Non-AC Seater"
                     ],
                     amenities: ["Water Bottle"],
                     boardingPoint: "Jalandhar Bus Stand, Gate 1",
@@ -1499,9 +1381,14 @@
                         { time: "04:00 PM", location: "Jalandhar Bus Stand", desc: "Boarding Point", current: false },
                         { time: "05:00 PM", location: "Rayya Bypass", desc: "Bus Stop", current: true },
                         { time: "05:30 PM", location: "Amritsar Bus Stand", desc: "Dropping Point", current: false }
-                    ]
+                    ],
+                    passengerName: "James Bond",
+                    seatNumber: "14"
                 },
                 {
+                    busNumber: "CH01S 8765",
+                    pnrNumber: "PNR55667",
+                    busName: "Raj Travels Overnight",
                     source: "Chandigarh",
                     destination: "Amritsar",
                     operator: "Raj Travels",
@@ -1510,7 +1397,7 @@
                     duration: "5h",
                     rating: "4.5",
                     seatingTypes: [
-                        { name: "AC Sleeper", seats: 8 }
+                        "AC Sleeper"
                     ],
                     amenities: ["AC", "Pillow"],
                     boardingPoint: "Sector 17, Chandigarh, near Bus Stop",
@@ -1525,24 +1412,19 @@
                         { time: "12:00 AM", location: "Jalandhar Bypass", desc: "Bus Stop", current: false },
                         { time: "01:00 AM", location: "Amritsar Bus Stand", desc: "Dropping Point", current: false }
                     ],
-                    overnight: true
+                    overnight: true,
+                    passengerName: "Olivia Wilson",
+                    seatNumber: "8A"
                 }
             ];
 
-            const pnrData = {
-                'PNR12345': {
-                    busNumber: '101',
-                    passengerName: 'John Doe',
-                    status: 'Confirmed',
-                    seatNumber: '12A'
-                },
-                'PNR67890': {
-                    busNumber: '205',
-                    passengerName: 'Jane Smith',
-                    status: 'Waitlisted (WL 2)',
-                    seatNumber: 'N/A'
-                },
-            };
+            // Mapping for PNR to bus details
+            const pnrMapping = {};
+            busData.forEach(bus => {
+                if (bus.pnrNumber) {
+                    pnrMapping[bus.pnrNumber] = bus;
+                }
+            });
 
             // --- Function to toggle between views ---
             function showView(viewId) {
@@ -1562,13 +1444,24 @@
                 resultText.textContent = '';
             }
 
-            const renderBusCards = (buses) => {
+            const renderBusCards = (buses, singleView = false) => {
                 busListContainer.innerHTML = '';
                 if (buses.length === 0) {
                     noResultsMessage.classList.remove('hidden');
                     return;
                 }
                 noResultsMessage.classList.add('hidden');
+
+                if (singleView) {
+                     document.getElementById('sortSelect').classList.add('hidden');
+                     document.getElementById('refreshBtn').classList.add('hidden');
+                     document.getElementById('shareBtnAll').classList.add('hidden');
+                } else {
+                     document.getElementById('sortSelect').classList.remove('hidden');
+                     document.getElementById('refreshBtn').classList.remove('hidden');
+                     document.getElementById('shareBtnAll').classList.remove('hidden');
+                }
+
 
                 buses.forEach((bus, index) => {
                     let statusColor = '';
@@ -1592,11 +1485,11 @@
                             <div class="flex items-center space-x-2">
                                 <span class="text-blue-600 font-bold text-xl">${bus.operator.charAt(0)}</span>
                                 <div class="flex flex-col">
-                                    <span class="font-semibold text-md text-gray-800">${bus.operator}</span>
+                                    <span class="font-semibold text-md text-gray-800">${bus.busName} (${bus.operator})</span>
                                     <div class="flex items-center space-x-1 mt-1">
                                         <div class="bg-green-500 text-white text-xs font-bold rounded px-1 py-0.5">${bus.rating}</div>
                                         <span class="text-sm text-gray-500">
-                                            ${bus.seatingTypes.map(s => s.name).join(', ')}
+                                            ${bus.seatingTypes.join(', ')}
                                         </span>
                                     </div>
                                 </div>
@@ -1845,14 +1738,14 @@
                 }
                 
                 const bus = busData.find(b => b.busNumber && b.busNumber.toUpperCase() === busNumber);
-                const pnr = pnrData[busNumber];
 
                 if (bus) {
-                     showResult(`Bus ${busNumber} is currently: ${bus.liveStatus}. Route: ${bus.source} to ${bus.destination}.`);
-                } else if (pnr) {
-                    showResult(`PNR Status for ${busNumber}: Bus No. ${pnr.busNumber}, Status: ${pnr.status}, Seat: ${pnr.seatNumber}.`);
+                    showView('busResultsView');
+                    busListHeading.textContent = `Bus Status: ${bus.busNumber} (${bus.source} to ${bus.destination})`;
+                    renderBusCards([bus], true);
                 } else {
-                    showResult(`No live status or PNR found for the provided number.`);
+                    showResult(`No live status found for bus number ${busNumber}.`);
+                    busNumberInput.value = "";
                 }
             });
 
@@ -1904,11 +1797,15 @@
                     return;
                 }
 
-                const status = pnrData[pnrNumber];
-                if (status) {
-                    showResult(`PNR Status for ${pnrNumber}: Bus No. ${status.busNumber}, Status: ${status.status}, Seat: ${status.seatNumber}.`);
+                const bus = pnrMapping[pnrNumber];
+
+                if (bus) {
+                    showView('busResultsView');
+                    busListHeading.textContent = `PNR Status: ${pnrNumber} (${bus.source} to ${bus.destination})`;
+                    renderBusCards([bus], true);
                 } else {
                     showResult(`No record found for PNR number ${pnrNumber}. Please check your PNR and try again.`);
+                    pnrInput.value = "";
                 }
             });
             
@@ -1917,8 +1814,20 @@
                  if (fromStationInput.value && toStationInput.value) {
                     searchByRouteBtn.click();
                 } else {
-                    showResult('Please enter a source and destination to refresh results.');
-                    showView('mainView');
+                    // Re-render the current single bus if we are in the detailed view
+                    const busNumber = busNumberInput.value.trim().toUpperCase();
+                    const pnrNumber = pnrInput.value.trim().toUpperCase();
+
+                    if (busNumber) {
+                        const bus = busData.find(b => b.busNumber && b.busNumber.toUpperCase() === busNumber);
+                         if (bus) renderBusCards([bus]);
+                    } else if (pnrNumber) {
+                        const bus = pnrMapping[pnrNumber];
+                        if(bus) renderBusCards([bus]);
+                    } else {
+                        showResult('Please enter a source and destination to refresh results.');
+                        showView('mainView');
+                    }
                 }
             });
 
