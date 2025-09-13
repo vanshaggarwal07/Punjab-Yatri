@@ -7,7 +7,6 @@ import {
   Bus, 
   MapPin, 
   Clock, 
-  Users, 
   Navigation,
   Circle
 } from 'lucide-react';
@@ -18,7 +17,6 @@ const mockBuses = [
     route: 'Amritsar → Ludhiana',
     status: 'On Time' as const,
     eta: '8 min',
-    passengers: '24/45',
     nextStop: 'Civil Hospital',
     color: 'bg-success'
   },
@@ -27,7 +25,6 @@ const mockBuses = [
     route: 'Chandigarh → Patiala', 
     status: 'Delayed' as const,
     eta: '12 min',
-    passengers: '31/40',
     nextStop: 'Railway Station',
     color: 'bg-warning'
   },
@@ -36,7 +33,6 @@ const mockBuses = [
     route: 'Jalandhar → Kapurthala',
     status: 'Arriving' as const,
     eta: '2 min',
-    passengers: '18/35',
     nextStop: 'Bus Stand',
     color: 'bg-primary'
   }
@@ -64,10 +60,6 @@ export default function LiveTrackingDemo() {
               <div className="flex items-center gap-3">
                 <Circle className="h-2 w-2 fill-primary text-primary" />
                 <span>Traffic-adjusted arrival times</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Circle className="h-2 w-2 fill-primary text-primary" />
-                <span>Real-time passenger capacity</span>
               </div>
             </div>
 
@@ -103,10 +95,6 @@ export default function LiveTrackingDemo() {
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-muted-foreground" />
                       <span>{bus.eta}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>{bus.passengers}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Navigation className="h-4 w-4 text-muted-foreground" />

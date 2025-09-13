@@ -10,8 +10,8 @@ const Index = () => {
       <Header />
       <main>
         <HeroSection />
-        <FeaturesSection />
         <LiveTrackingDemo />
+        <FeaturesSection />
       </main>
       <Footer />
     </div>

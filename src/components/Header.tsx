@@ -1,4 +1,4 @@
-import { Bus, MapPin, Clock, AlertCircle } from 'lucide-react';
+import { Bus, MapPin, Clock, AlertCircle, UserCog, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import LanguageSelector from './LanguageSelector';
@@ -20,12 +20,6 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-2">
           <Button variant="ghost" size="sm" className="gap-2" asChild>
             <Link to="/map">
-              <MapPin className="h-4 w-4" />
-              Live Map
-            </Link>
-          </Button>
-          <Button variant="ghost" size="sm" className="gap-2" asChild>
-            <Link to="/map">
               <Clock className="h-4 w-4" />
               Live Tracking
             </Link>
@@ -45,7 +39,21 @@ export default function Header() {
           </Button>
         </nav>
 
-        <LanguageSelector />
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/driver-portal" className="gap-1">
+              <UserCog className="h-4 w-4" />
+              <span className="hidden sm:inline">Driver Portal</span>
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/municipal-portal" className="gap-1">
+              <Building2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Municipal Portal</span>
+            </Link>
+          </Button>
+          <LanguageSelector />
+        </div>
       </div>
     </header>
   );
