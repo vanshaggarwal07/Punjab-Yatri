@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 ## GOVT OF PUNJAB 
 
@@ -13,3 +14,6 @@ npm i
 # Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
+=======
+# Punjab-Yatri
+>>>>>>> 1764dff4b2397a7b515278668c995295b02b4c09
