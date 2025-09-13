@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Index from "./pages/Index";
 import MapPage from "./pages/MapPage";
+import DriverPortal from "./pages/DriverPortal";
+import MunicipalPortal from "./pages/MunicipalPortal";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +22,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/map" element={<MapPage />} />
+            <Route path="/driver-portal" element={<DriverPortal />} />
+            <Route path="/municipal-portal" element={<MunicipalPortal />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 ## GOVT OF PUNJAB 
 
@@ -17,3 +18,6 @@ npm run dev
 =======
 # Punjab-Yatri
 >>>>>>> 1764dff4b2397a7b515278668c995295b02b4c09
+=======
+# SIH
+>>>>>>> 78bf29ed18ddaf6d6bf8157c375944c5d849fcb6
