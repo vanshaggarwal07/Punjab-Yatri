@@ -1,37 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MapPin, Plus, Trash2, Edit, Check, X, Clock, Bus, ArrowRight, Map } from 'lucide-react';
+import { MapPin, Plus, Trash2, Edit, X, Clock, Bus as BusIcon, ArrowRight, Map, CheckCircle, PowerOff, Check } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Bus as BusType, Route as RouteType, RouteManagementProps } from '@/@types';
 
-interface Route {
-  id: string;
+interface Stop {
   name: string;
-  from: string;
-  to: string;
-  distance: number; // in km
-  estimatedTime: string; // e.g., '2h 30m'
-  status: 'active' | 'inactive';
-  stops: {
-    name: string;
-    distanceFromStart: number;
-    estimatedTimeFromStart: string;
-  }[];
+  distanceFromStart: number;
+  estimatedTimeFromStart: string;
+  lat?: number;
+  lng?: number;
+}
+
+interface Route extends Omit<RouteType, 'stops'> {
+  stops: Stop[];
   assignedBuses: string[];
-}
-
-interface Bus {
-  id: string;
-  number: string;
-  type: string;
-  status: 'active' | 'inactive' | 'maintenance';
-}
-
-interface RouteManagementProps {
-  buses: Bus[];
 }
 
 const mockRoutes: Route[] = [
@@ -43,20 +30,23 @@ const mockRoutes: Route[] = [
     distance: 230,
     estimatedTime: '4h 30m',
     status: 'active',
+    activeBuses: ['1'],
     stops: [
-      { name: 'Amritsar Bus Stand', distanceFromStart: 0, estimatedTimeFromStart: '0h 0m' },
-      { name: 'Beas', distanceFromStart: 45, estimatedTimeFromStart: '1h 0m' },
-      { name: 'Jalandhar', distanceFromStart: 80, estimatedTimeFromStart: '1h 45m' },
-      { name: 'Ludhiana', distanceFromStart: 140, estimatedTimeFromStart: '2h 45m' },
-      { name: 'Chandigarh ISBT', distanceFromStart: 230, estimatedTimeFromStart: '4h 30m' },
+      { name: 'Amritsar Bus Stand', distanceFromStart: 0, estimatedTimeFromStart: '0h 0m', lat: 31.6340, lng: 74.8723 },
+      { name: 'Beas', distanceFromStart: 45, estimatedTimeFromStart: '1h 0m', lat: 31.5176, lng: 75.0729 },
+      { name: 'Jalandhar', distanceFromStart: 80, estimatedTimeFromStart: '1h 45m', lat: 31.3260, lng: 75.5762 },
+      { name: 'Ludhiana', distanceFromStart: 140, estimatedTimeFromStart: '2h 45m', lat: 30.9010, lng: 75.8573 },
+      { name: 'Chandigarh ISBT', distanceFromStart: 230, estimatedTimeFromStart: '4h 30m', lat: 30.7333, lng: 76.7794 },
     ],
     assignedBuses: ['1']
   },
-  // Add more mock routes as needed
 ];
 
-export function RouteManagement({ buses }: RouteManagementProps) {
-  const [routes, setRoutes] = useState<Route[]>(mockRoutes);
+export function RouteManagement({ buses, onBusesUpdate }: RouteManagementProps) {
+  const [routes, setRoutes] = useState<Route[]>(() => {
+    const savedRoutes = localStorage.getItem('routes');
+    return savedRoutes ? JSON.parse(savedRoutes) : mockRoutes;
+  });
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Route>>({
@@ -67,13 +57,20 @@ export function RouteManagement({ buses }: RouteManagementProps) {
     estimatedTime: '',
     status: 'active',
     stops: [],
-    assignedBuses: []
+    assignedBuses: [],
+    activeBuses: []
   });
   const [currentStop, setCurrentStop] = useState('');
   const [stopDistance, setStopDistance] = useState('');
   const [stopTime, setStopTime] = useState('');
 
-  const handleAddRoute = () => {
+  // Save routes to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('routes', JSON.stringify(routes));
+  }, [routes]);
+
+  const handleAddRoute = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!formData.name || !formData.from || !formData.to) return;
     
     const newRoute: Route = {
@@ -85,10 +82,19 @@ export function RouteManagement({ buses }: RouteManagementProps) {
       estimatedTime: formData.estimatedTime || '0h 0m',
       status: formData.status || 'active',
       stops: formData.stops || [],
-      assignedBuses: formData.assignedBuses || []
+      assignedBuses: formData.assignedBuses || [],
+      activeBuses: []
     };
 
-    setRoutes([...routes, newRoute]);
+    if (editingId) {
+      setRoutes(routes.map(route => 
+        route.id === editingId ? { ...newRoute, id: editingId } : route
+      ));
+      setEditingId(null);
+    } else {
+      setRoutes([...routes, newRoute]);
+    }
+    
     setIsAdding(false);
     setFormData({
       name: '',
@@ -98,7 +104,8 @@ export function RouteManagement({ buses }: RouteManagementProps) {
       estimatedTime: '',
       status: 'active',
       stops: [],
-      assignedBuses: []
+      assignedBuses: [],
+      activeBuses: []
     });
   };
 

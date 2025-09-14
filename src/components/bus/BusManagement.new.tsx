@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Bus as BusIcon, Plus, Trash2, Edit, X, Wrench, PowerOff, CheckCircle } from 'lucide-react';
+import { Bus, Plus, Trash2, Edit, X, Wrench, PowerOff, CheckCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Bus as BusType, BusManagementProps } from '@/@types';
 
@@ -132,6 +132,7 @@ export default function BusManagement({ buses, onBusesChange }: BusManagementPro
   // Calculate statistics
   const activeBusesCount = buses.filter(bus => bus.status === 'active').length;
   const inMaintenanceCount = buses.filter(bus => bus.status === 'maintenance').length;
+  const inactiveBusesCount = buses.filter(bus => bus.status === 'inactive').length;
 
   return (
     <div className="space-y-6">
@@ -140,7 +141,7 @@ export default function BusManagement({ buses, onBusesChange }: BusManagementPro
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Buses</CardTitle>
-            <BusIcon className="h-4 w-4 text-muted-foreground" />
+            <Bus className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{buses.length}</div>

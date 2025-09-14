@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock, Bus } from "lucide-react";
+import { ArrowLeft, Clock, Bus, AlertTriangle, Coffee, Power, AlertCircle, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface Bus {
@@ -35,6 +35,12 @@ export default function DriverPortal() {
   const [isLocationActive, setIsLocationActive] = useState(false);
   const [watchId, setWatchId] = useState<number | null>(null);
   const [currentBus, setCurrentBus] = useState<Bus | null>(null);
+  const [isOnBreak, setIsOnBreak] = useState(false);
+  const [emergencyStatus, setEmergencyStatus] = useState<{
+    isActive: boolean;
+    message: string;
+    time: string | null;
+  }>({ isActive: false, message: '', time: null });
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -117,6 +123,15 @@ export default function DriverPortal() {
     //   headers: { 'Content-Type': 'application/json' },
     //   body: JSON.stringify({ busNumber, driverId, location: { lat, lng } })
     // });
+    
+    // Update the current bus location in state
+    if (currentBus) {
+      setCurrentBus({
+        ...currentBus,
+        currentLocation: { lat, lng },
+        lastUpdated: new Date().toISOString()
+      });
+    }
   };
 
   const handleLogout = () => {
@@ -126,6 +141,172 @@ export default function DriverPortal() {
     setBusNumber("");
     setLocation(null);
     setCurrentBus(null);
+    setIsOnBreak(false);
+    setEmergencyStatus({ isActive: false, message: '', time: null });
+  };
+
+  const handleReportIssue = async () => {
+    if (!currentBus) return;
+    
+    const issue = prompt('Please describe the issue:');
+    if (!issue) return;
+    
+    setIsLoading(true);
+    
+    // Simulate API call
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // In a real app, this would be an API call
+      // await fetch('/api/report-issue', {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     busId: currentBus.id,
+      //     driverId,
+      //     issue,
+      //     location,
+      //     timestamp: new Date().toISOString()
+      //   })
+      // });
+      
+      toast({
+        title: "Issue Reported",
+        description: "Your issue has been reported to the operations team.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('Error reporting issue:', error);
+      toast({
+        title: "Error",
+        description: "Failed to report issue. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleBreak = async () => {
+    if (!currentBus) return;
+    
+    const newBreakState = !isOnBreak;
+    setIsLoading(true);
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      // In a real app, this would be an API call
+      // await fetch('/api/driver/break', {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     driverId,
+      //     busId: currentBus.id,
+      //     isOnBreak: newBreakState,
+      //     timestamp: new Date().toISOString()
+      //   })
+      // });
+      
+      setIsOnBreak(newBreakState);
+      toast({
+        title: newBreakState ? "Break Started" : "Break Ended",
+        description: newBreakState 
+          ? "Your break has started. You will not receive new assignments." 
+          : "You are back on duty.",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error('Error updating break status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update break status. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleEmergency = async () => {
+    if (!currentBus) return;
+    
+    if (emergencyStatus.isActive) {
+      setEmergencyStatus({ isActive: false, message: '', time: null });
+      toast({
+        title: "Emergency Resolved",
+        description: "Emergency status has been deactivated.",
+        variant: "default",
+      });
+      return;
+    }
+    
+    const emergencyType = prompt('Select emergency type:\n1. Medical Emergency\n2. Mechanical Failure\n3. Security Threat\n4. Other');
+    
+    if (!emergencyType) return;
+    
+    const messages = {
+      '1': 'Medical Emergency - Immediate assistance required',
+      '2': 'Mechanical Failure - Vehicle needs attention',
+      '3': 'Security Threat - Urgent assistance needed',
+      '4': 'Emergency - Immediate assistance required'
+    };
+    
+    const message = messages[emergencyType as keyof typeof messages] || 'Emergency - Assistance required';
+    const time = new Date().toLocaleTimeString();
+    
+    // In a real app, this would trigger an API call to notify the operations team
+    console.log('EMERGENCY ALERT:', { bus: currentBus.number, message, time });
+    
+    setEmergencyStatus({ isActive: true, message, time });
+    
+    // Flash the screen red to indicate emergency mode
+    document.body.style.animation = 'emergencyFlash 1s 3';
+    setTimeout(() => {
+      document.body.style.animation = '';
+    }, 3000);
+    
+    toast({
+      title: "🚨 Emergency Alert Sent",
+      description: "Help is on the way. Stay calm and follow emergency procedures.",
+      variant: "destructive",
+      duration: 10000,
+    });
+  };
+
+  const endShift = async () => {
+    if (!currentBus || !confirm('Are you sure you want to end your shift? This will log you out.')) {
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // In a real app, this would be an API call
+      // await fetch('/api/shift/end', {
+      //   method: 'POST',
+      //   body: JSON.stringify({
+      //     driverId,
+      //     busId: currentBus.id,
+      //     endTime: new Date().toISOString(),
+      //     endLocation: location
+      //   })
+      // });
+      
+      toast({
+        title: "Shift Ended",
+        description: "Thank you for your service today!",
+        variant: "default",
+      });
+      
+      handleLogout();
+    } catch (error) {
+      console.error('Error ending shift:', error);
+      toast({
+        title: "Error",
+        description: "Failed to end shift. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Clean up the geolocation watcher when the component unmounts
@@ -281,18 +462,67 @@ export default function DriverPortal() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Quick Actions</span>
+                  {emergencyStatus.isActive && (
+                    <span className="flex items-center text-sm font-normal text-red-600 animate-pulse">
+                      <AlertCircle className="h-4 w-4 mr-1" /> EMERGENCY
+                    </span>
+                  )}
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full" disabled={!isLocationActive}>
+                <Button 
+                  variant={emergencyStatus.isActive ? "destructive" : "outline"}
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={handleEmergency}
+                  disabled={!isLocationActive || isLoading}
+                >
+                  {isLoading && emergencyStatus.isActive ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <AlertTriangle className="h-4 w-4" />
+                  )}
+                  {emergencyStatus.isActive ? 'Emergency Active' : 'Emergency'}
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={handleReportIssue}
+                  disabled={!isLocationActive || isLoading}
+                >
+                  <AlertCircle className="h-4 w-4" />
                   Report Issue
                 </Button>
-                <Button variant="outline" className="w-full" disabled={!isLocationActive}>
-                  Start Break
+                
+                <Button 
+                  variant={isOnBreak ? 'secondary' : 'outline'}
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={toggleBreak}
+                  disabled={!isLocationActive || isLoading}
+                >
+                  <Coffee className="h-4 w-4" />
+                  {isOnBreak ? 'End Break' : 'Start Break'}
                 </Button>
-                <Button variant="outline" className="w-full" disabled={!isLocationActive}>
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full flex items-center justify-center gap-2 text-red-600 hover:bg-red-50 hover:text-red-700"
+                  onClick={endShift}
+                  disabled={isLoading}
+                >
+                  <Power className="h-4 w-4" />
                   End Shift
                 </Button>
+                
+                {emergencyStatus.isActive && (
+                  <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                    <div className="font-medium">Emergency Active</div>
+                    <div>{emergencyStatus.message}</div>
+                    <div className="text-xs opacity-75 mt-1">Reported at: {emergencyStatus.time}</div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
