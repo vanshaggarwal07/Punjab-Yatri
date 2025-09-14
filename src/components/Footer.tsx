@@ -55,7 +55,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-primary-foreground/20 mt-8 pt-8 text-center text-primary-foreground/80">
-          <p>&copy; 2024 Punjab Yatra. Built with ❤️ for Punjab's commuters.</p>
+          <p>&copy; 2025 Punjab Yatra</p>
         </div>
       </div>
     </footer>

@@ -4,9 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ArrowLeft, BarChart2, Users, AlertTriangle, Settings, Bus, MapPin, Plus, Lock, User, Building2, BusFront, Map, UserRoundCog } from "lucide-react";
+import { ArrowLeft, BarChart2, Users, AlertTriangle, Settings, Bus, MapPin, Plus, Lock, User, Building2, BusFront, Map, UserRoundCog, CheckCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { BusManagement } from "@/components/bus/BusManagement";
+import BusManagement from "@/components/bus/BusManagement";
 import { DriverManagement } from "@/components/bus/DriverManagement";
 import { RouteManagement } from "@/components/bus/RouteManagement";
 import MapView from "@/components/MapView";
@@ -23,7 +23,18 @@ interface Bus {
     to: string;
     distance: number;
   };
+  currentLocation?: {
+    lat: number;
+    lng: number;
+  };
   lastUpdated: Date;
+}
+
+// Extend the Window interface to include the map object
+declare global {
+  interface Window {
+    initMap?: () => void;
+  }
 }
 
 // Mock authentication - in a real app, this would be handled by a backend service
@@ -41,7 +52,15 @@ export default function MunicipalPortal() {
   const [isLoading, setIsLoading] = useState(false);
   const [user, setUser] = useState<{id: string; name: string; role: string} | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [buses, setBuses] = useState<Bus[]>([]);
+  // Shared state for buses that will be used across all components
+  const [buses, setBuses] = useState<Bus[]>(() => {
+    // Load from localStorage or use initial mock data
+    const savedBuses = localStorage.getItem('municipalBuses');
+    return savedBuses ? JSON.parse(savedBuses) : [];
+  });
+  
+  // Track which buses are currently active (have live location updates)
+  const [activeBuses, setActiveBuses] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
 
   // Check if already logged in
@@ -94,48 +113,44 @@ export default function MunicipalPortal() {
     setPassword('');
   };
 
-  // Load mock data
+  // Save buses to localStorage whenever they change
   useEffect(() => {
-    // In a real app, this would be an API call
-    const mockBuses: Bus[] = [
-      {
-        id: '1',
-        number: 'PB01AB1234',
-        type: 'AC Sleeper',
-        capacity: 40,
-        status: 'active',
-        currentRoute: {
-          from: 'Amritsar',
-          to: 'Chandigarh',
-          distance: 230
-        },
-        lastUpdated: new Date()
-      },
-      {
-        id: '2',
-        number: 'PB02CD5678',
-        type: 'Non-AC Seater',
-        capacity: 50,
-        status: 'active',
-        currentRoute: {
-          from: 'Ludhiana',
-          to: 'Jalandhar',
-          distance: 90
-        },
-        lastUpdated: new Date()
-      },
-      {
-        id: '3',
-        number: 'PB03EF9012',
-        type: 'Volvo Multi-Axle',
-        capacity: 45,
-        status: 'maintenance',
-        lastUpdated: new Date()
-      }
-    ];
+    if (buses.length > 0) {
+      localStorage.setItem('municipalBuses', JSON.stringify(buses));
+    }
+  }, [buses]);
+
+  // Simulate live bus location updates
+  useEffect(() => {
+    if (buses.length === 0) return;
     
-    setBuses(mockBuses);
-  }, []);
+    // Only simulate updates for active buses
+    const activeBuses = buses.filter(bus => bus.status === 'active');
+    if (activeBuses.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setBuses(currentBuses => 
+        currentBuses.map(bus => {
+          if (bus.status !== 'active') return bus;
+          
+          // Add some random movement to simulate real-time updates
+          const latOffset = (Math.random() - 0.5) * 0.01;
+          const lngOffset = (Math.random() - 0.5) * 0.01;
+          
+          return {
+            ...bus,
+            currentLocation: bus.currentRoute ? {
+              lat: (bus.currentLocation?.lat || 31.6340) + latOffset,
+              lng: (bus.currentLocation?.lng || 74.8723) + lngOffset
+            } : bus.currentLocation,
+            lastUpdated: new Date()
+          };
+        })
+      );
+    }, 5000); // Update every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, [buses.length]);
 
   if (!isLoggedIn) {
     return (
@@ -293,7 +308,7 @@ export default function MunicipalPortal() {
           </TabsContent>
 
           <TabsContent value="dashboard" className="space-y-6">
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-4 gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">Total Buses</CardTitle>
@@ -305,6 +320,26 @@ export default function MunicipalPortal() {
                   <div className="text-2xl font-bold">{buses.length}</div>
                   <p className="text-xs text-muted-foreground">
                     {buses.filter(b => b.status === 'active').length} active, {buses.filter(b => b.status === 'maintenance').length} in maintenance
+                  </p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Active Routes</CardTitle>
+                  <div className="p-2 bg-green-500/10 rounded-lg">
+                    <MapPin className="h-5 w-5 text-green-600" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {new Set(buses
+                      .filter(b => b.status === 'active' && b.currentRoute)
+                      .map(b => `${b.currentRoute?.from}-${b.currentRoute?.to}`)
+                    ).size}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {buses.filter(b => b.status === 'active' && b.currentRoute).length} buses on routes
                   </p>
                 </CardContent>
               </Card>
@@ -418,18 +453,22 @@ export default function MunicipalPortal() {
           </TabsContent>
           
           <TabsContent value="buses" className="space-y-6">
-            <BusManagement />
+            <BusManagement buses={buses} onBusesChange={setBuses} />
           </TabsContent>
           
           <TabsContent value="routes" className="space-y-6">
-            <RouteManagement buses={buses} />
+            <RouteManagement buses={buses} onBusesUpdate={setBuses} />
           </TabsContent>
           
           <TabsContent value="drivers" className="space-y-6">
-            <DriverManagement buses={buses} onDriverUpdate={(driver) => {
-              // In a real app, this would update the driver in the backend
-              console.log('Driver updated:', driver);
-            }} />
+            <DriverManagement 
+              buses={buses}
+              onDriverUpdate={(driver) => {
+                // In a real app, this would update the driver in the backend
+                console.log('Driver updated:', driver);
+              }}
+              onBusesUpdate={setBuses}
+            />
           </TabsContent>
           
           <TabsContent value="reports" className="space-y-6">
@@ -463,6 +502,50 @@ export default function MunicipalPortal() {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Live Buses Panel - Fixed at the bottom */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t shadow-lg">
+        <div className="container py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Bus className="h-5 w-5 text-green-600" />
+              <span className="font-medium">Live Buses</span>
+              <span className="text-sm text-muted-foreground">
+                {buses.filter(b => b.status === 'active').length} active
+              </span>
+            </div>
+            <div className="flex items-center gap-2 overflow-x-auto py-2 scrollbar-hide">
+              {buses
+                .filter(bus => bus.status === 'active')
+                .map(bus => (
+                  <div 
+                    key={bus.id}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full border text-sm whitespace-nowrap"
+                  >
+                    <div className={`h-2 w-2 rounded-full ${
+                      activeBuses.has(bus.id) ? 'bg-green-500' : 'bg-gray-400'
+                    }`}></div>
+                    <span className="font-medium">{bus.number}</span>
+                    {bus.currentRoute && (
+                      <span className="text-muted-foreground text-xs">
+                        {bus.currentRoute.from} → {bus.currentRoute.to}
+                      </span>
+                    )}
+                  </div>
+                ))
+              }
+              {buses.filter(b => b.status === 'active').length === 0 && (
+                <div className="text-sm text-muted-foreground px-4 py-2">
+                  No active buses at the moment
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Add some padding to prevent content from being hidden behind the fixed panel */}
+      <div className="h-16"></div>
     </div>
   );
 }

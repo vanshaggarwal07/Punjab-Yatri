@@ -32,6 +32,7 @@ interface Bus {
 interface DriverManagementProps {
   buses: Bus[];
   onDriverUpdate: (driver: Driver) => void;
+  onBusesUpdate: React.Dispatch<React.SetStateAction<Bus[]>>;
 }
 
 const mockDrivers: Driver[] = [
