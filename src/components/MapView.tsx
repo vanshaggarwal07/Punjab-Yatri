@@ -4,7 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Navigation, Bus, Users, Clock, Locate } from 'lucide-react';
+import { MapPin, Navigation, Bus, Users, Clock, Locate, Share2 } from 'lucide-react';
 
 // Your Mapbox public token
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhcmsxMjM0IiwiYSI6ImNtZmh5cWVubzBqMXoyaXF0aDNneGg5OWQifQ._dySBvjJtseB2Y6t_iquUA';
@@ -13,7 +13,6 @@ interface BusData {
   id: string;
   route: string;
   status: 'On Time' | 'Delayed' | 'Early';
-  passengers: string;
   coordinates: [number, number];
   heading: number;
   speed: number;
@@ -27,7 +26,6 @@ const initialBuses: BusData[] = [
     id: 'PB-001',
     route: 'Amritsar ↔ Ludhiana',
     status: 'On Time',
-    passengers: '24/45',
     coordinates: [75.8573, 31.6340], // Amritsar
     heading: 45,
     speed: 45,
@@ -38,7 +36,6 @@ const initialBuses: BusData[] = [
     id: 'PB-045',
     route: 'Chandigarh ↔ Patiala',
     status: 'Delayed',
-    passengers: '31/40',
     coordinates: [76.7794, 30.7333], // Chandigarh
     heading: 180,
     speed: 35,
@@ -49,7 +46,6 @@ const initialBuses: BusData[] = [
     id: 'PB-078',
     route: 'Jalandhar ↔ Kapurthala',
     status: 'Early',
-    passengers: '18/35',
     coordinates: [75.5762, 31.3260], // Jalandhar
     heading: 270,
     speed: 50,
@@ -60,7 +56,6 @@ const initialBuses: BusData[] = [
     id: 'PB-112',
     route: 'Bathinda ↔ Mansa',
     status: 'On Time',
-    passengers: '12/30',
     coordinates: [74.9455, 30.2110], // Bathinda
     heading: 90,
     speed: 40,
@@ -163,6 +158,18 @@ export default function MapView() {
     return el;
   };
 
+  // Handle URL parameters for deep linking
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const busId = params.get('bus');
+    if (busId) {
+      const bus = buses.find(b => b.id === busId);
+      if (bus) {
+        centerOnBus(bus);
+      }
+    }
+  }, []);
+
   // Add bus markers to map
   useEffect(() => {
     if (!map.current) return;
@@ -181,7 +188,6 @@ export default function MapView() {
               <h3 style="margin: 0 0 8px 0; color: hsl(24 95% 53%)">${bus.id}</h3>
               <p style="margin: 4px 0; font-size: 14px;"><strong>Route:</strong> ${bus.route}</p>
               <p style="margin: 4px 0; font-size: 14px;"><strong>Status:</strong> ${bus.status}</p>
-              <p style="margin: 4px 0; font-size: 14px;"><strong>Passengers:</strong> ${bus.passengers}</p>
               <p style="margin: 4px 0; font-size: 14px;"><strong>Next Stop:</strong> ${bus.nextStop}</p>
               <p style="margin: 4px 0; font-size: 14px;"><strong>ETA:</strong> ${bus.eta}</p>
             </div>
@@ -222,6 +228,22 @@ export default function MapView() {
 
     return () => clearInterval(interval);
   }, []);
+
+  const shareBusDetails = (bus: BusData) => {
+    const shareData = {
+      title: `Bus ${bus.id} - ${bus.route}`,
+      text: `Track ${bus.id} on ${bus.route}. Current status: ${bus.status}, Next stop: ${bus.nextStop}, ETA: ${bus.eta}`,
+      url: `${window.location.origin}/map?bus=${encodeURIComponent(bus.id)}`,
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData).catch(console.error);
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      navigator.clipboard.writeText(shareData.url);
+      alert('Link copied to clipboard!');
+    }
+  };
 
   const centerOnBus = (bus: BusData) => {
     if (map.current) {
@@ -297,22 +319,31 @@ export default function MapView() {
                     <div className="font-semibold text-primary">{bus.id}</div>
                     <div className="text-sm text-muted-foreground">{bus.route}</div>
                   </div>
-                  <Badge variant={
-                    bus.status === 'On Time' ? 'default' : 
-                    bus.status === 'Delayed' ? 'destructive' : 'secondary'
-                  }>
-                    {bus.status}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 text-muted-foreground hover:text-primary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        shareBusDetails(bus);
+                      }}
+                    >
+                      <Share2 className="h-3 w-3" />
+                    </Button>
+                    <Badge variant={
+                      bus.status === 'On Time' ? 'default' : 
+                      bus.status === 'Delayed' ? 'destructive' : 'secondary'
+                    }>
+                      {bus.status}
+                    </Badge>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="flex items-center gap-1">
                     <Clock className="h-3 w-3 text-muted-foreground" />
                     <span>{bus.eta}</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Users className="h-3 w-3 text-muted-foreground" />
-                    <span>{bus.passengers}</span>
                   </div>
                   <div className="col-span-2 flex items-center gap-1">
                     <MapPin className="h-3 w-3 text-muted-foreground" />
