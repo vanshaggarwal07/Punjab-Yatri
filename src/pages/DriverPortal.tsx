@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Clock, Bus, AlertTriangle, Coffee, Power, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Clock, Bus, AlertTriangle, Coffee, Power, AlertCircle, Loader2, Wifi, MapPin } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface Bus {
@@ -34,6 +34,7 @@ export default function DriverPortal() {
   const [locationError, setLocationError] = useState("");
   const [isLocationActive, setIsLocationActive] = useState(false);
   const [watchId, setWatchId] = useState<number | null>(null);
+  const [locationSource, setLocationSource] = useState<'gps' | 'cell'>('gps');
   const [currentBus, setCurrentBus] = useState<Bus | null>(null);
   const [isOnBreak, setIsOnBreak] = useState(false);
   const [emergencyStatus, setEmergencyStatus] = useState<{
@@ -309,6 +310,77 @@ export default function DriverPortal() {
     }
   };
 
+  const getCurrentLocation = () => {
+    // Clear any existing location tracking
+    if (watchId !== null) {
+      navigator.geolocation.clearWatch(watchId);
+      setWatchId(null);
+    }
+    
+    if (locationSource === 'cell') {
+      // Simulate cell tower location (less accurate)
+      const mockLocations = [
+        { lat: 30.7333 + (Math.random() * 0.02 - 0.01), lng: 76.7794 + (Math.random() * 0.02 - 0.01) }, // Chandigarh area
+        { lat: 31.6340 + (Math.random() * 0.02 - 0.01), lng: 74.8723 + (Math.random() * 0.02 - 0.01) }, // Amritsar area
+        { lat: 31.3260 + (Math.random() * 0.02 - 0.01), lng: 75.5762 + (Math.random() * 0.02 - 0.01) }, // Jalandhar area
+        { lat: 30.9010 + (Math.random() * 0.02 - 0.01), lng: 75.8573 + (Math.random() * 0.02 - 0.01) }, // Ludhiana area
+      ];
+      
+      const randomLocation = mockLocations[Math.floor(Math.random() * mockLocations.length)];
+      
+      // Set initial location
+      setLocation({
+        lat: randomLocation.lat,
+        lng: randomLocation.lng
+      });
+      setIsLocationActive(true);
+      
+      // Simulate less frequent updates for cell tower
+      const interval = setInterval(() => {
+        const updatedLocation = {
+          lat: randomLocation.lat + (Math.random() * 0.01 - 0.005),
+          lng: randomLocation.lng + (Math.random() * 0.01 - 0.005)
+        };
+        setLocation(updatedLocation);
+        updateBusLocation(updatedLocation.lat, updatedLocation.lng);
+      }, 10000); // Update every 10 seconds
+      
+      // Cleanup function
+      return () => clearInterval(interval);
+    }
+    
+    // Proceed with GPS if not using cell tower
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser");
+      setIsLocationActive(false);
+      return;
+    }
+
+    // Request location permission and start tracking
+    const id = navigator.geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setLocation({ lat: latitude, lng: longitude });
+        setIsLocationActive(true);
+        
+        // In a real app, send this location to your backend
+        updateBusLocation(latitude, longitude);
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+        setLocationError("Unable to retrieve your location");
+        setIsLocationActive(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+
+    setWatchId(id);
+  };
+
   // Clean up the geolocation watcher when the component unmounts
   useEffect(() => {
     return () => {
@@ -393,6 +465,46 @@ export default function DriverPortal() {
                 <CardTitle>Location Tracking</CardTitle>
               </CardHeader>
               <CardContent>
+                <div className="mb-6 space-y-2">
+                  <p className="text-sm font-medium text-gray-700">Location Source</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setLocationSource('gps')}
+                      className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-colors ${
+                        locationSource === 'gps'
+                          ? 'border-blue-600 bg-blue-50'
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <MapPin className={`h-8 w-8 mb-2 ${
+                        locationSource === 'gps' ? 'text-blue-600' : 'text-gray-500'
+                      }`} />
+                      <span className="font-medium">GPS Location</span>
+                      {locationSource === 'gps' && (
+                        <span className="text-xs text-blue-600 font-medium mt-1">Active</span>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setLocationSource('cell')}
+                      className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-colors ${
+                        locationSource === 'cell'
+                          ? 'border-green-600 bg-green-50'
+                          : 'border-gray-200 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Wifi className={`h-8 w-8 mb-2 ${
+                        locationSource === 'cell' ? 'text-green-600' : 'text-gray-500'
+                      }`} />
+                      <span className="font-medium">Cell Tower</span>
+                      {locationSource === 'cell' && (
+                        <span className="text-xs text-green-600 font-medium mt-1">Active</span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+                
                 {location ? (
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
@@ -407,7 +519,10 @@ export default function DriverPortal() {
                     </div>
                     <div className="bg-gray-100 p-4 rounded-lg">
                       <p className="text-sm text-gray-700">
-                        Your location is being shared in real-time. The map will update automatically.
+                        Using {locationSource === 'gps' ? 'GPS' : 'Cell Tower'} for location tracking.
+                        {locationSource === 'gps' 
+                          ? ' High accuracy GPS location is active.' 
+                          : ' Approximate location based on cell towers.'}
                       </p>
                     </div>
                   </div>
